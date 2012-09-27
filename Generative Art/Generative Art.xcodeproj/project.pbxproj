@@ -1,0 +1,308 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		09FB60391613EF48002C23E9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 09FB60381613EF48002C23E9 /* UIKit.framework */; };
+		09FB603B1613EF48002C23E9 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 09FB603A1613EF48002C23E9 /* Foundation.framework */; };
+		09FB603D1613EF48002C23E9 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 09FB603C1613EF48002C23E9 /* CoreGraphics.framework */; };
+		09FB60431613EF48002C23E9 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 09FB60411613EF48002C23E9 /* InfoPlist.strings */; };
+		09FB60451613EF48002C23E9 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 09FB60441613EF48002C23E9 /* main.m */; };
+		09FB60491613EF48002C23E9 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 09FB60481613EF48002C23E9 /* AppDelegate.m */; };
+		09FB605E1613EF72002C23E9 /* Geometry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 09FB60581613EF72002C23E9 /* Geometry.cpp */; };
+		09FB605F1613EF72002C23E9 /* GLViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 09FB605B1613EF72002C23E9 /* GLViewController.mm */; };
+		09FB60601613EF72002C23E9 /* GLViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 09FB605C1613EF72002C23E9 /* GLViewController.xib */; };
+		09FB60611613EF72002C23E9 /* GLViewController~iphone.xib in Resources */ = {isa = PBXBuildFile; fileRef = 09FB605D1613EF72002C23E9 /* GLViewController~iphone.xib */; };
+		09FB60641613EFC7002C23E9 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 09FB60621613EFC7002C23E9 /* GLKit.framework */; };
+		09FB60651613EFC7002C23E9 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 09FB60631613EFC7002C23E9 /* OpenGLES.framework */; };
+		09FB606B1613F05D002C23E9 /* flare.png in Resources */ = {isa = PBXBuildFile; fileRef = 09FB606A1613F05D002C23E9 /* flare.png */; };
+		09FB606E1613F067002C23E9 /* Texture.mm in Sources */ = {isa = PBXBuildFile; fileRef = 09FB606D1613F067002C23E9 /* Texture.mm */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		09FB60341613EF48002C23E9 /* Generative Art.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Generative Art.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		09FB60381613EF48002C23E9 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		09FB603A1613EF48002C23E9 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		09FB603C1613EF48002C23E9 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		09FB60401613EF48002C23E9 /* Generative Art-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Generative Art-Info.plist"; sourceTree = "<group>"; };
+		09FB60421613EF48002C23E9 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		09FB60441613EF48002C23E9 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		09FB60461613EF48002C23E9 /* Generative Art-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Generative Art-Prefix.pch"; sourceTree = "<group>"; };
+		09FB60471613EF48002C23E9 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		09FB60481613EF48002C23E9 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		09FB60581613EF72002C23E9 /* Geometry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Geometry.cpp; sourceTree = "<group>"; };
+		09FB60591613EF72002C23E9 /* Geometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Geometry.h; sourceTree = "<group>"; };
+		09FB605A1613EF72002C23E9 /* GLViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLViewController.h; sourceTree = "<group>"; };
+		09FB605B1613EF72002C23E9 /* GLViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GLViewController.mm; sourceTree = "<group>"; };
+		09FB605C1613EF72002C23E9 /* GLViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = GLViewController.xib; sourceTree = "<group>"; };
+		09FB605D1613EF72002C23E9 /* GLViewController~iphone.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = "GLViewController~iphone.xib"; sourceTree = "<group>"; };
+		09FB60621613EFC7002C23E9 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
+		09FB60631613EFC7002C23E9 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		09FB606A1613F05D002C23E9 /* flare.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = flare.png; sourceTree = "<group>"; };
+		09FB606C1613F067002C23E9 /* Texture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Texture.h; sourceTree = "<group>"; };
+		09FB606D1613F067002C23E9 /* Texture.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Texture.mm; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		09FB60311613EF48002C23E9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				09FB60641613EFC7002C23E9 /* GLKit.framework in Frameworks */,
+				09FB60651613EFC7002C23E9 /* OpenGLES.framework in Frameworks */,
+				09FB60391613EF48002C23E9 /* UIKit.framework in Frameworks */,
+				09FB603B1613EF48002C23E9 /* Foundation.framework in Frameworks */,
+				09FB603D1613EF48002C23E9 /* CoreGraphics.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		09FB60291613EF48002C23E9 = {
+			isa = PBXGroup;
+			children = (
+				09FB603E1613EF48002C23E9 /* Generative Art */,
+				09FB60371613EF48002C23E9 /* Frameworks */,
+				09FB60351613EF48002C23E9 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		09FB60351613EF48002C23E9 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				09FB60341613EF48002C23E9 /* Generative Art.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		09FB60371613EF48002C23E9 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				09FB60621613EFC7002C23E9 /* GLKit.framework */,
+				09FB60631613EFC7002C23E9 /* OpenGLES.framework */,
+				09FB60381613EF48002C23E9 /* UIKit.framework */,
+				09FB603A1613EF48002C23E9 /* Foundation.framework */,
+				09FB603C1613EF48002C23E9 /* CoreGraphics.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		09FB603E1613EF48002C23E9 /* Generative Art */ = {
+			isa = PBXGroup;
+			children = (
+				09FB606A1613F05D002C23E9 /* flare.png */,
+				09FB606C1613F067002C23E9 /* Texture.h */,
+				09FB606D1613F067002C23E9 /* Texture.mm */,
+				09FB60581613EF72002C23E9 /* Geometry.cpp */,
+				09FB60591613EF72002C23E9 /* Geometry.h */,
+				09FB605A1613EF72002C23E9 /* GLViewController.h */,
+				09FB605B1613EF72002C23E9 /* GLViewController.mm */,
+				09FB605C1613EF72002C23E9 /* GLViewController.xib */,
+				09FB605D1613EF72002C23E9 /* GLViewController~iphone.xib */,
+				09FB60471613EF48002C23E9 /* AppDelegate.h */,
+				09FB60481613EF48002C23E9 /* AppDelegate.m */,
+				09FB603F1613EF48002C23E9 /* Supporting Files */,
+			);
+			path = "Generative Art";
+			sourceTree = "<group>";
+		};
+		09FB603F1613EF48002C23E9 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				09FB60401613EF48002C23E9 /* Generative Art-Info.plist */,
+				09FB60411613EF48002C23E9 /* InfoPlist.strings */,
+				09FB60441613EF48002C23E9 /* main.m */,
+				09FB60461613EF48002C23E9 /* Generative Art-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		09FB60331613EF48002C23E9 /* Generative Art */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 09FB60551613EF49002C23E9 /* Build configuration list for PBXNativeTarget "Generative Art" */;
+			buildPhases = (
+				09FB60301613EF48002C23E9 /* Sources */,
+				09FB60311613EF48002C23E9 /* Frameworks */,
+				09FB60321613EF48002C23E9 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Generative Art";
+			productName = "Generative Art";
+			productReference = 09FB60341613EF48002C23E9 /* Generative Art.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		09FB602B1613EF48002C23E9 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0440;
+				ORGANIZATIONNAME = "Spencer Salazar";
+			};
+			buildConfigurationList = 09FB602E1613EF48002C23E9 /* Build configuration list for PBXProject "Generative Art" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 09FB60291613EF48002C23E9;
+			productRefGroup = 09FB60351613EF48002C23E9 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				09FB60331613EF48002C23E9 /* Generative Art */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		09FB60321613EF48002C23E9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				09FB60431613EF48002C23E9 /* InfoPlist.strings in Resources */,
+				09FB60601613EF72002C23E9 /* GLViewController.xib in Resources */,
+				09FB60611613EF72002C23E9 /* GLViewController~iphone.xib in Resources */,
+				09FB606B1613F05D002C23E9 /* flare.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		09FB60301613EF48002C23E9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				09FB60451613EF48002C23E9 /* main.m in Sources */,
+				09FB60491613EF48002C23E9 /* AppDelegate.m in Sources */,
+				09FB605E1613EF72002C23E9 /* Geometry.cpp in Sources */,
+				09FB605F1613EF72002C23E9 /* GLViewController.mm in Sources */,
+				09FB606E1613F067002C23E9 /* Texture.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		09FB60411613EF48002C23E9 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				09FB60421613EF48002C23E9 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		09FB60531613EF49002C23E9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		09FB60541613EF49002C23E9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		09FB60561613EF49002C23E9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Generative Art/Generative Art-Prefix.pch";
+				INFOPLIST_FILE = "Generative Art/Generative Art-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		09FB60571613EF49002C23E9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Generative Art/Generative Art-Prefix.pch";
+				INFOPLIST_FILE = "Generative Art/Generative Art-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		09FB602E1613EF48002C23E9 /* Build configuration list for PBXProject "Generative Art" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				09FB60531613EF49002C23E9 /* Debug */,
+				09FB60541613EF49002C23E9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		09FB60551613EF49002C23E9 /* Build configuration list for PBXNativeTarget "Generative Art" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				09FB60561613EF49002C23E9 /* Debug */,
+				09FB60571613EF49002C23E9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 09FB602B1613EF48002C23E9 /* Project object */;
+}

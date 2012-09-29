@@ -84,6 +84,13 @@ struct GLcolor4f
     
 } __attribute__((packed));
 
+
+GLcolor4f operator+(const GLcolor4f &v1, const GLcolor4f &v2);
+GLcolor4f operator-(const GLcolor4f &v1, const GLcolor4f &v2);
+GLcolor4f operator*(const GLcolor4f &v, const GLfloat &s);
+GLcolor4f operator/(const GLcolor4f &v, const GLfloat &s);
+
+
 struct GLvertex2f
 {
     GLfloat x;
@@ -99,15 +106,40 @@ struct GLvertex2f
         this->x = x;
         this->y = y;
     }
+    
+    GLvertex2f(const GLvertex2f &v)
+    {
+        this->x = v.x;
+        this->y = v.y;
+    }
+    
+    GLvertex3f operator()()
+    {
+        return GLvertex3f(this->x, this->y, 0);
+    }
 
     GLfloat magnitude() { return sqrtf(x*x+y*y); }
     GLfloat magnitudeSquared() { return x*x+y*y; }
 
 } __attribute__((packed));
 
+GLvertex2f operator+(const GLvertex2f &v1, const GLvertex2f &v2);
+GLvertex2f operator-(const GLvertex2f &v1, const GLvertex2f &v2);
+GLvertex2f operator*(const GLvertex2f &v, const GLfloat &s);
+GLvertex2f operator/(const GLvertex2f &v, const GLfloat &s);
+
+
 // geometry primitve, i.e. vertex/normal/color/uv
 struct GLgeoprimf
 {
+//    GLgeoprimf()
+//    {
+//        vertex = GLvertex3f();
+//        normal = GLvertex3f(0, 0, -1);
+//        texcoord = GLvertex2f();
+//        color = GLcolor4f();
+//    }
+    
     GLvertex3f vertex;
     GLvertex3f normal;
     GLvertex2f texcoord;
@@ -117,10 +149,50 @@ struct GLgeoprimf
 // triangle primitive -- 3 vertex primitives
 struct GLtrif
 {
+//    GLtrif()
+//    {
+//        a = GLgeoprimf();
+//        b = GLgeoprimf();
+//        c = GLgeoprimf();
+//    }
+    
     GLgeoprimf a;
     GLgeoprimf b;
     GLgeoprimf c;
 } __attribute__((packed));
 
+
+class Geometry
+{
+public:
+    inline static void makeSquare(GLtrif &t1, GLtrif &t2, float width)
+    {
+        float width_2 = width/2.0;
+        
+        t1.a.vertex = GLvertex3f(-width_2, -width_2, 0);
+        t1.b.vertex = GLvertex3f( width_2, -width_2, 0);
+        t1.c.vertex = GLvertex3f(-width_2,  width_2, 0);
+        
+        t2.a.vertex = GLvertex3f( width_2, -width_2, 0);
+        t2.b.vertex = GLvertex3f(-width_2,  width_2, 0);
+        t2.c.vertex = GLvertex3f( width_2,  width_2, 0);
+        
+        t1.a.texcoord = GLvertex2f(0, 0);
+        t1.b.texcoord = GLvertex2f(1, 0);
+        t1.c.texcoord = GLvertex2f(0, 1);
+        
+        t2.a.texcoord = GLvertex2f(1, 0);
+        t2.b.texcoord = GLvertex2f(0, 1);
+        t2.c.texcoord = GLvertex2f(1, 1);
+        
+        t1.a.color = GLcolor4f(1, 1, 1, 1);
+        t1.b.color = GLcolor4f(1, 1, 1, 1);
+        t1.c.color = GLcolor4f(1, 1, 1, 1);
+        
+        t2.a.color = GLcolor4f(1, 1, 1, 1);
+        t2.b.color = GLcolor4f(1, 1, 1, 1);
+        t2.c.color = GLcolor4f(1, 1, 1, 1);
+    }
+};
 
 #endif

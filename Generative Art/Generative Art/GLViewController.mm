@@ -46,8 +46,9 @@ public:
     
     void init()
     {
+        m_scale = 0.25;
         m_mainParticle.init();
-        m_mainParticle.scale = 0.25;
+        m_mainParticle.scale = m_scale;
         m_mainParticle.ttl = FLT_MAX;
         m_mainParticle.alpha = 0.8;
         m_tex = loadTexture(@"flare.png");
@@ -55,6 +56,9 @@ public:
     
     void update(float dt, float t)
     {
+        m_mainParticle.scale = m_scale + m_scale*0.1*sinf(2*M_PI*0.55*t);
+        m_mainParticle.alpha = 0.8 + 0.1*sinf(2*M_PI*0.45*t);
+        
         int num = 1+Random::unit()*2;
         for(int i = 0; i < num; i++)
         {
@@ -62,16 +66,13 @@ public:
             p.init();
             p.scale = m_mainParticle.scale * 0.15;
             p.p = m_mainParticle.p + GLvertex2f(Random::unit()*2-1,Random::unit()*2-1)*p.scale;
-            p.v = GLvertex2f(Random::unit()*2-1, -Random::unit())*0.2;
+            p.v = GLvertex2f(Random::unit()*2-1, Random::unit()*2-1.25)*0.2;
             p.a = GLvertex2f(0, 0.2);
-            p.ttl = 1+Random::unit()*0.4;
+            p.ttl = 1.0+Random::unit()*0.4;
             p.alpha = 0.15;
             
             m_particles.push_back(p);
         }
-        
-        m_mainParticle.scale = 0.25 + 0.025*sinf(2*M_PI*0.55*t);
-        m_mainParticle.alpha = 0.8 + 0.1*sinf(2*M_PI*0.45*t);
         
         m_mainParticle.update(dt, t);
         
@@ -98,12 +99,14 @@ public:
         glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
         glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, m_tex);
+        glBindTexture(GL_TEXTURE_2D, 0);
         
-        m_mainParticle.render();
+//        m_mainParticle.render();
         m_mainParticle.render();
         m_mainParticle.render();
         
+        glBindTexture(GL_TEXTURE_2D, 0);
+
         for(list<Particle>::iterator i = m_particles.begin();
             i != m_particles.end(); i++)
         {
@@ -111,6 +114,16 @@ public:
             i->render();
             i->render();
         }
+    }
+    
+    void setPosition(GLvertex2f p)
+    {
+        m_mainParticle.p = p;
+    }
+    
+    void setScale(float scale)
+    {
+        m_scale = scale;
     }
     
 protected:
@@ -188,6 +201,7 @@ protected:
         float alpha;
     };
     
+    float m_scale;
     GLuint m_tex;
     Particle m_mainParticle;
     list<Particle> m_particles;
@@ -218,6 +232,7 @@ public:
         completion = 0;
         paused = false;
         v = 1.5;
+        touch = nil;
     }
     
     virtual void update(float dt, float t)
@@ -253,8 +268,11 @@ public:
     bool paused;
     float v;
     float completion;
+    UITouch * touch;
     GLvertex2f start, end;
     GLcolor4f startColor, endColor;
+    
+protected:
     GLgeoprimf g[2];
 };
 
@@ -270,6 +288,7 @@ const float PATH_LENGTH = 0.25;
     map<UITouch *, GLvertex2f> targets;
     list<Segment> segments;
     list<Segment> activeSegments;
+    list<Segment> pendingSegments;
 }
 
 @property (strong, nonatomic) EAGLContext *context;
@@ -303,23 +322,25 @@ const float PATH_LENGTH = 0.25;
     GLKView *view = (GLKView *)self.view;
     view.context = self.context;
     view.drawableDepthFormat = GLKViewDrawableDepthFormat24;
+    view.multipleTouchEnabled = YES;
     
     [EAGLContext setCurrentContext:self.context];
     
     t = 0;
     
     cluster.init();
+    cluster.setScale(0.125);
     
-    float divisions = 3;
-    float i = floorf(Random::unit()*divisions);
-    Segment newSeg;
-    newSeg.init();
-    newSeg.startColor = hsv2rgb(GLcolor4f(Random::unit(), Random::unit(), 0.9, 1));
-    newSeg.start = GLvertex2f(0,0);
-    newSeg.endColor = hsv2rgb(GLcolor4f(Random::unit(), Random::unit(), 0.9, 1));
-    newSeg.end = GLvertex2f::fromPolar(PATH_LENGTH, 2*M_PI*i/divisions);
-    
-    activeSegments.push_back(newSeg);
+//    float divisions = 3;
+//    float i = floorf(Random::unit()*divisions);
+//    Segment newSeg;
+//    newSeg.init();
+//    newSeg.startColor = hsv2rgb(GLcolor4f(Random::unit(), Random::unit(), 0.9, 1));
+//    newSeg.start = GLvertex2f(0,0);
+//    newSeg.endColor = hsv2rgb(GLcolor4f(Random::unit(), Random::unit(), 0.9, 1));
+//    newSeg.end = GLvertex2f::fromPolar(PATH_LENGTH, 2*M_PI*i/divisions);
+//    
+//    activeSegments.push_back(newSeg);
 }
 
 - (void)viewDidUnload
@@ -346,25 +367,24 @@ const float PATH_LENGTH = 0.25;
     
     cluster.update(dt, t);
     
-    bool paused = targets.size() == 0;
-    
     for(list<Segment>::iterator s = activeSegments.begin();
         s != activeSegments.end(); )
     {
         list<Segment>::iterator s2 = s++;
         
-        s2->paused = paused;
+        s2->paused = false;
         s2->update(dt, t);
         
         if(s2->completion >= 1)
         {
             Segment oldSeg = *s2;
-            segments.push_back(oldSeg);
             activeSegments.erase(s2);
             
-            if(activeSegments.size() < targets.size())
+            if(targets.count(s2->touch))
             {
-                // add new segment
+                segments.push_back(oldSeg);
+
+                // if the corresponding touch is still present, add new segment
                 float divisions = 2 + targets.size();
                 
                 Segment newSeg;
@@ -372,31 +392,44 @@ const float PATH_LENGTH = 0.25;
                 newSeg.startColor = oldSeg.endColor;
                 newSeg.start = oldSeg.end;
                 newSeg.endColor = hsv2rgb(GLcolor4f(Random::unit(), Random::unit(), 0.9, 1));
+                newSeg.touch = oldSeg.touch;
                 
-                // find acceptable angle that is closest to target (touch)
+                // find acceptable angle that is closest to touch
                 float closest = FLT_MAX;
-                GLvertex2f end;
-                GLvertex2f touch = targets.begin()->second;
+                GLvertex2f touch = targets[newSeg.touch];
                 for(float i = 0; i < divisions; i++)
                 {
                     GLvertex2f v = newSeg.start + GLvertex2f::fromPolar(PATH_LENGTH, 2*M_PI*i/divisions);
                     float magSq = (touch-v).magnitudeSquared();
-                    if(magSq < closest && (v-oldSeg.start).magnitudeSquared() > 0.001)
+                    if(magSq < closest &&
+                       (v-oldSeg.start).magnitudeSquared() > 0.001) // don't double back
                     {
                         closest = magSq;
-                        end = v;
+                        newSeg.end = v;
                     }
                 }
                 
-                newSeg.end = end;
-                
                 activeSegments.push_back(newSeg);
+            }
+            else
+            {
+                oldSeg.touch = nil;
+                segments.push_back(oldSeg);
             }
         }
     }
-
+    
+    for(list<Segment>::iterator s = pendingSegments.begin();
+        s != pendingSegments.end(); s++)
+        s->update(dt, t);
+    
     for(list<Segment>::iterator s = segments.begin(); s != segments.end(); s++)
         s->update(dt, t);
+    
+    if(targets.size())
+    {
+        cluster.setPosition(targets.begin()->second);
+    }
 }
 
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
@@ -424,17 +457,13 @@ const float PATH_LENGTH = 0.25;
     
     for(list<Segment>::iterator s = segments.begin(); s != segments.end(); s++)
         s->render();
+    for(list<Segment>::iterator s = pendingSegments.begin();
+        s != pendingSegments.end(); s++)
+        s->render();
     for(list<Segment>::iterator s = activeSegments.begin();
         s != activeSegments.end(); s++)
         s->render();
     
-    if(targets.size())
-    {
-        GLvertex2f touch = targets.begin()->second;
-        glTranslatef(touch.x, touch.y, 0);
-    }
-    
-    glScalef(0.5, 0.5, 0.5);
     cluster.render();
 }
 
@@ -442,7 +471,57 @@ const float PATH_LENGTH = 0.25;
 {
     for(UITouch * touch in touches)
     {
-        targets[touch] = uiview2gl([touch locationInView:self.view], self.view);
+        GLvertex2f p = uiview2gl([touch locationInView:self.view], self.view);
+        targets[touch] = p;
+        
+        bool foundOne = false;
+        float closestDist = FLT_MAX;
+        Segment oldSeg;
+        // find the closest active segment and branch from it
+        for(list<Segment>::iterator s = activeSegments.begin();
+            s != activeSegments.end(); s++)
+        {
+            GLvertex2f v = s->start;
+            float magSq = (p - v).magnitudeSquared();
+            if(magSq < closestDist)
+            {
+                foundOne = true;
+                closestDist = magSq;
+                oldSeg = *s;
+            }
+        }
+        
+        float divisions = 2 + targets.size();
+        
+        Segment newSeg;
+        newSeg.init();
+        if(foundOne)
+        {
+            newSeg.startColor = oldSeg.startColor;
+            newSeg.start = oldSeg.start;
+        }
+        else
+        {
+            newSeg.startColor = hsv2rgb(GLcolor4f(Random::unit(), Random::unit(), 0.9, 1));
+            newSeg.start = GLvertex2f();
+        }
+        newSeg.endColor = hsv2rgb(GLcolor4f(Random::unit(), Random::unit(), 0.9, 1));
+        newSeg.touch = touch;
+        
+        // find acceptable angle that is closest to touch
+        float closest = FLT_MAX;
+        for(float i = 0; i < divisions; i++)
+        {
+            GLvertex2f v = newSeg.start + GLvertex2f::fromPolar(PATH_LENGTH, 2*M_PI*i/divisions);
+            float magSq = (p-v).magnitudeSquared();
+            if(magSq < closest)
+            {
+                closest = magSq;
+                newSeg.end = v;
+            }
+        }
+        
+        activeSegments.push_back(newSeg);
     }
 }
 

@@ -11,6 +11,7 @@
 #import <list>
 #import <map>
 #import "Texture.h"
+#import "hsv.h"
 
 
 using namespace std;
@@ -215,11 +216,13 @@ public:
     void init()
     {
         completion = 0;
+        paused = false;
+        v = 1.5;
     }
     
     virtual void update(float dt, float t)
     {
-        if(completion < 1)
+        if(!paused && completion < 1)
         {
             completion += dt*v;
             if(completion > 1)
@@ -227,7 +230,7 @@ public:
         }
         
         g[0].vertex = start;
-        g[1].vertex = start + (end - start) * completion;
+        g[1].vertex = start + (end - start)*completion;
         
         g[0].color = startColor;
         g[1].color = startColor + (endColor - startColor)*completion;
@@ -247,6 +250,7 @@ public:
         glDrawArrays(GL_LINES, 0, 2);
     }
 
+    bool paused;
     float v;
     float completion;
     GLvertex2f start, end;
@@ -305,6 +309,17 @@ const float PATH_LENGTH = 0.25;
     t = 0;
     
     cluster.init();
+    
+    float divisions = 3;
+    float i = floorf(Random::unit()*divisions);
+    Segment newSeg;
+    newSeg.init();
+    newSeg.startColor = hsv2rgb(GLcolor4f(Random::unit(), Random::unit(), 0.9, 1));
+    newSeg.start = GLvertex2f(0,0);
+    newSeg.endColor = hsv2rgb(GLcolor4f(Random::unit(), Random::unit(), 0.9, 1));
+    newSeg.end = GLvertex2f::fromPolar(PATH_LENGTH, 2*M_PI*i/divisions);
+    
+    activeSegments.push_back(newSeg);
 }
 
 - (void)viewDidUnload
@@ -331,16 +346,55 @@ const float PATH_LENGTH = 0.25;
     
     cluster.update(dt, t);
     
-    if(targets.size())
+    bool paused = targets.size() == 0;
+    
+    for(list<Segment>::iterator s = activeSegments.begin();
+        s != activeSegments.end(); )
     {
-        // if there is any touch down
-        for(list<Segment>::iterator s = activeSegments.begin();
-            s != activeSegments.end(); s++)
+        list<Segment>::iterator s2 = s++;
+        
+        s2->paused = paused;
+        s2->update(dt, t);
+        
+        if(s2->completion >= 1)
         {
-            s->update(dt, t);
+            Segment oldSeg = *s2;
+            segments.push_back(oldSeg);
+            activeSegments.erase(s2);
+            
+            if(activeSegments.size() < targets.size())
+            {
+                // add new segment
+                float divisions = 2 + targets.size();
+                
+                Segment newSeg;
+                newSeg.init();
+                newSeg.startColor = oldSeg.endColor;
+                newSeg.start = oldSeg.end;
+                newSeg.endColor = hsv2rgb(GLcolor4f(Random::unit(), Random::unit(), 0.9, 1));
+                
+                // find acceptable angle that is closest to target (touch)
+                float closest = FLT_MAX;
+                GLvertex2f end;
+                GLvertex2f touch = targets.begin()->second;
+                for(float i = 0; i < divisions; i++)
+                {
+                    GLvertex2f v = newSeg.start + GLvertex2f::fromPolar(PATH_LENGTH, 2*M_PI*i/divisions);
+                    float magSq = (touch-v).magnitudeSquared();
+                    if(magSq < closest && (v-oldSeg.start).magnitudeSquared() > 0.001)
+                    {
+                        closest = magSq;
+                        end = v;
+                    }
+                }
+                
+                newSeg.end = end;
+                
+                activeSegments.push_back(newSeg);
+            }
         }
     }
-    
+
     for(list<Segment>::iterator s = segments.begin(); s != segments.end(); s++)
         s->update(dt, t);
 }
@@ -363,17 +417,25 @@ const float PATH_LENGTH = 0.25;
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    cluster.render();
-        
     glEnable(GL_LINE_SMOOTH);
     glLineWidth(2.0);
     glDisable(GL_TEXTURE_2D);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
+    for(list<Segment>::iterator s = segments.begin(); s != segments.end(); s++)
+        s->render();
     for(list<Segment>::iterator s = activeSegments.begin();
         s != activeSegments.end(); s++)
         s->render();
-    for(list<Segment>::iterator s = segments.begin(); s != segments.end(); s++)
-        s->render();
+    
+    if(targets.size())
+    {
+        GLvertex2f touch = targets.begin()->second;
+        glTranslatef(touch.x, touch.y, 0);
+    }
+    
+    glScalef(0.5, 0.5, 0.5);
+    cluster.render();
 }
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event

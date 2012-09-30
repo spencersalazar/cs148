@@ -120,6 +120,12 @@ struct GLvertex2f
 
     GLfloat magnitude() { return sqrtf(x*x+y*y); }
     GLfloat magnitudeSquared() { return x*x+y*y; }
+    GLfloat angle() { return atan2f(y, x); }
+    
+    static GLvertex2f fromPolar(GLfloat r, GLfloat theta)
+    {
+        return GLvertex2f(r*cosf(theta), r*sinf(theta));
+    }
 
 } __attribute__((packed));
 

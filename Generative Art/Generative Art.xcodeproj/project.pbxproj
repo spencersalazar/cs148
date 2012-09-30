@@ -24,6 +24,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		09C3A2DD1617A69D002D631E /* hsv.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = hsv.h; sourceTree = "<group>"; };
 		09FB60341613EF48002C23E9 /* Generative Art.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Generative Art.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		09FB60381613EF48002C23E9 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		09FB603A1613EF48002C23E9 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -95,6 +96,7 @@
 		09FB603E1613EF48002C23E9 /* Generative Art */ = {
 			isa = PBXGroup;
 			children = (
+				09C3A2DD1617A69D002D631E /* hsv.h */,
 				09FB606A1613F05D002C23E9 /* flare.png */,
 				09FB606C1613F067002C23E9 /* Texture.h */,
 				09FB606D1613F067002C23E9 /* Texture.mm */,
@@ -301,6 +303,7 @@
 				09FB60571613EF49002C23E9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

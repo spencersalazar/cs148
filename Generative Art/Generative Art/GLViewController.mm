@@ -286,9 +286,10 @@ const float PATH_LENGTH = 0.25;
     NSTimeInterval t;
     
     map<UITouch *, GLvertex2f> targets;
+    map<UITouch *, FlareCluster> clusters;
     list<Segment> segments;
     list<Segment> activeSegments;
-    list<Segment> pendingSegments;
+    GLvertex2f lastSegmentStart;
 }
 
 @property (strong, nonatomic) EAGLContext *context;
@@ -330,17 +331,6 @@ const float PATH_LENGTH = 0.25;
     
     cluster.init();
     cluster.setScale(0.125);
-    
-//    float divisions = 3;
-//    float i = floorf(Random::unit()*divisions);
-//    Segment newSeg;
-//    newSeg.init();
-//    newSeg.startColor = hsv2rgb(GLcolor4f(Random::unit(), Random::unit(), 0.9, 1));
-//    newSeg.start = GLvertex2f(0,0);
-//    newSeg.endColor = hsv2rgb(GLcolor4f(Random::unit(), Random::unit(), 0.9, 1));
-//    newSeg.end = GLvertex2f::fromPolar(PATH_LENGTH, 2*M_PI*i/divisions);
-//    
-//    activeSegments.push_back(newSeg);
 }
 
 - (void)viewDidUnload
@@ -410,6 +400,8 @@ const float PATH_LENGTH = 0.25;
                 }
                 
                 activeSegments.push_back(newSeg);
+                
+                lastSegmentStart = newSeg.start;
             }
             else
             {
@@ -419,17 +411,11 @@ const float PATH_LENGTH = 0.25;
         }
     }
     
-    for(list<Segment>::iterator s = pendingSegments.begin();
-        s != pendingSegments.end(); s++)
-        s->update(dt, t);
-    
     for(list<Segment>::iterator s = segments.begin(); s != segments.end(); s++)
         s->update(dt, t);
-    
-    if(targets.size())
-    {
-        cluster.setPosition(targets.begin()->second);
-    }
+    for(map<UITouch *, FlareCluster>::iterator c = clusters.begin();
+        c != clusters.end(); c++)
+        c->second.update(dt, t);
 }
 
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
@@ -457,32 +443,31 @@ const float PATH_LENGTH = 0.25;
     
     for(list<Segment>::iterator s = segments.begin(); s != segments.end(); s++)
         s->render();
-    for(list<Segment>::iterator s = pendingSegments.begin();
-        s != pendingSegments.end(); s++)
-        s->render();
     for(list<Segment>::iterator s = activeSegments.begin();
         s != activeSegments.end(); s++)
         s->render();
-    
-    cluster.render();
+    for(map<UITouch *, FlareCluster>::iterator c = clusters.begin();
+        c != clusters.end(); c++)
+        c->second.render();
 }
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     for(UITouch * touch in touches)
     {
-        GLvertex2f p = uiview2gl([touch locationInView:self.view], self.view);
-        targets[touch] = p;
+        GLvertex2f loc = uiview2gl([touch locationInView:self.view], self.view);
+        targets[touch] = loc;
         
         bool foundOne = false;
         float closestDist = FLT_MAX;
         Segment oldSeg;
+        
         // find the closest active segment and branch from it
         for(list<Segment>::iterator s = activeSegments.begin();
             s != activeSegments.end(); s++)
         {
             GLvertex2f v = s->start;
-            float magSq = (p - v).magnitudeSquared();
+            float magSq = (loc - v).magnitudeSquared();
             if(magSq < closestDist)
             {
                 foundOne = true;
@@ -503,7 +488,7 @@ const float PATH_LENGTH = 0.25;
         else
         {
             newSeg.startColor = hsv2rgb(GLcolor4f(Random::unit(), Random::unit(), 0.9, 1));
-            newSeg.start = GLvertex2f();
+            newSeg.start = lastSegmentStart;
         }
         newSeg.endColor = hsv2rgb(GLcolor4f(Random::unit(), Random::unit(), 0.9, 1));
         newSeg.touch = touch;
@@ -513,7 +498,7 @@ const float PATH_LENGTH = 0.25;
         for(float i = 0; i < divisions; i++)
         {
             GLvertex2f v = newSeg.start + GLvertex2f::fromPolar(PATH_LENGTH, 2*M_PI*i/divisions);
-            float magSq = (p-v).magnitudeSquared();
+            float magSq = (loc-v).magnitudeSquared();
             if(magSq < closest)
             {
                 closest = magSq;
@@ -522,6 +507,12 @@ const float PATH_LENGTH = 0.25;
         }
         
         activeSegments.push_back(newSeg);
+        
+        FlareCluster newCluster;
+        newCluster.init();
+        newCluster.setScale(0.125);
+        newCluster.setPosition(loc);
+        clusters[touch] = newCluster;
     }
 }
 
@@ -529,7 +520,9 @@ const float PATH_LENGTH = 0.25;
 {
     for(UITouch * touch in touches)
     {
-        targets[touch] = uiview2gl([touch locationInView:self.view], self.view);
+        GLvertex2f loc = uiview2gl([touch locationInView:self.view], self.view);
+        targets[touch] = loc;
+        clusters[touch].setPosition(loc);
     }
 }
 
@@ -538,6 +531,7 @@ const float PATH_LENGTH = 0.25;
     for(UITouch * touch in touches)
     {
         targets.erase(touch);
+        clusters.erase(touch);
     }
 }
 

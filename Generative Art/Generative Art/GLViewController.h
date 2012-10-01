@@ -11,4 +11,6 @@
 
 @interface GLViewController : GLKViewController
 
+- (void)clear;
+
 @end

@@ -282,7 +282,6 @@ const float PATH_LENGTH = 0.25;
 
 @interface GLViewController ()
 {
-    FlareCluster cluster;
     NSTimeInterval t;
     
     map<UITouch *, GLvertex2f> targets;
@@ -328,9 +327,6 @@ const float PATH_LENGTH = 0.25;
     [EAGLContext setCurrentContext:self.context];
     
     t = 0;
-    
-    cluster.init();
-    cluster.setScale(0.125);
 }
 
 - (void)viewDidUnload
@@ -354,8 +350,6 @@ const float PATH_LENGTH = 0.25;
 {
     float dt = self.timeSinceLastUpdate;
     t += dt;
-    
-    cluster.update(dt, t);
     
     for(list<Segment>::iterator s = activeSegments.begin();
         s != activeSegments.end(); )
@@ -538,6 +532,12 @@ const float PATH_LENGTH = 0.25;
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
 {
     [self touchesEnded:touches withEvent:event];
+}
+
+
+- (void)clear
+{
+    segments.clear();
 }
 
 

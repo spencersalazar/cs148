@@ -25,11 +25,15 @@ void display( void )
     sglScale(0.5, 0.5);
     
     sglBeginTriangles();
+    
     sglColor(.8f, .1f, 0.f);
     sglVertex(-100, -100);
     sglVertex( 100, -100);
+    
+    sglColor(0.0f, .1f, 0.8f);
     sglVertex(-100,  100);
     sglVertex( 100,  100);
+    
     sglEnd();
     
 	// --- End of drawing calls ------+

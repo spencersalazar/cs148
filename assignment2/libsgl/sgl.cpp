@@ -83,10 +83,10 @@ void drawOne(const Vertex &a, const Vertex &b, const Vertex &c)
     int xmin, xmax;
     int ymin, ymax;
 
-    xmin = ceil(min(a.p.x, min(b.p.x, c.p.x)));
-    xmax = ceil(max(a.p.x, max(b.p.x, c.p.x)));
-    ymin = ceil(min(a.p.y, min(b.p.y, c.p.y)));
-    ymax = ceil(max(a.p.y, max(b.p.y, c.p.y)));
+    xmin = max(0.0, ceil(min(a.p.x, min(b.p.x, c.p.x))));
+    xmax = min((double)buffer_width, ceil(max(a.p.x, max(b.p.x, c.p.x))));
+    ymin = max(0.0, ceil(min(a.p.y, min(b.p.y, c.p.y))));
+    ymax = min((double)buffer_height, ceil(max(a.p.y, max(b.p.y, c.p.y))));
     
     for(int x = xmin; x < xmax; x++)
     {
@@ -163,7 +163,7 @@ void sglPushMatrix()
 
 void sglPopMatrix()
 {
-	xform = *(xformStack.end()--);
+	xform = *(--xformStack.end());
     xformStack.pop_back();
 }
 

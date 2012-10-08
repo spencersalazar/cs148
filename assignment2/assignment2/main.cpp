@@ -13,27 +13,107 @@ using namespace std;
 
 STImage* buff;
 
+int grot = 0;
+//int arot;
+//int brot;
+
+
+void drawThing()
+{
+//    sglBeginTriangles();
+//    
+//    sglVertex(-50, -50);
+//    sglVertex( 50, -50);
+//    sglVertex(-50,  50);
+//    sglVertex( 50,  50);
+//    
+//    sglEnd();
+    
+    const int TRIS = 20;
+    const float RADIUS = 50;
+    
+    for(int i = 0; i < TRIS; i++)
+    {
+        float theta = ((float) i)/TRIS*2*M_PI;
+        float theta_plus_one = ((float) i+1)/TRIS*2*M_PI;
+        
+        sglBeginTriangles();
+        
+        sglVertex(0, 0);
+        sglVertex(RADIUS*cosf(theta), RADIUS*sinf(theta));
+        sglVertex(RADIUS*cosf(theta_plus_one), RADIUS*sinf(theta_plus_one));
+        
+        sglEnd();
+    }
+}
+
+
 void display( void )
 {
 	glClear( GL_COLOR_BUFFER_BIT );
+    int width = buff->GetWidth();
+    int height = buff->GetHeight();
+    for(int i = 0; i < width; i++)
+    {
+        for(int j = 0; j < height; j++)
+        {
+            buff->SetPixel(i, j, STColor4ub(0, 0, 0, 1));
+        }
+    }
+    
 	// --- Make drawing calls here ---+
 
     sglLoadIdentity();
     
-    sglTranslate(200, 200);
-    sglRotate(-45);
+//    sglRotate(grot++);
+//    sglTranslate(200, 200);
+//    sglRotate(arot++);
+//    sglScale(0.5, 0.5);
+//    
+//    sglBeginTriangles();
+//    
+//    sglColor(.8f, .1f, 0.f);
+//    sglVertex(-100, -100);
+//    sglVertex( 100, -100);
+//    
+//    sglColor(0.0f, .1f, 0.8f);
+//    sglVertex(-100,  100);
+//    sglVertex( 100,  100);
+    
+    const int NUM = 21;
+    
+    sglLoadIdentity();
+    sglTranslate(buff->GetWidth()/2.0, buff->GetHeight()/2.0);
+    sglRotate(grot++);
     sglScale(0.5, 0.5);
-    
-    sglBeginTriangles();
-    
-    sglColor(.8f, .1f, 0.f);
-    sglVertex(-100, -100);
-    sglVertex( 100, -100);
-    
-    sglColor(0.0f, .1f, 0.8f);
-    sglVertex(-100,  100);
-    sglVertex( 100,  100);
-    
+    sglColor(1, 1, 1);
+    drawThing();
+
+    for(int j = 0; j < 4; j++)
+    {
+        float xtrans, ytrans;
+        if(j == 0 || j ==2) xtrans = 75;
+        else xtrans = -75;
+        if(j == 0 || j ==1) ytrans = 75;
+        else ytrans = -75;
+        
+        sglPushMatrix();
+        
+        for(int i = 0; i < NUM; i++)
+        {
+            float frac = i/(float)NUM;
+            sglColor(1.0f-frac, 1.0f-frac, 1.0f-frac);
+            
+            sglScale(0.80, 0.80);
+            sglTranslate(xtrans, ytrans);
+            sglRotate(4*cosf(7*grot/180.0*M_PI));
+            
+            drawThing();
+        }
+        
+        sglPopMatrix();
+    }
+        
     sglEnd();
     
 	// --- End of drawing calls ------+
@@ -70,6 +150,12 @@ void keyboard( unsigned char key, int x, int y )
 	}
 }
 
+void timer(int val)
+{
+    glutPostRedisplay();
+    glutTimerFunc(1000/30, timer, 0);
+}
+
 int main (int argc, char *argv[])
 {
 	int win_width = 512;
@@ -84,6 +170,7 @@ int main (int argc, char *argv[])
 	glutCreateWindow( "Intro Graphics Assignment 2" );
 
 	glutDisplayFunc( display );
+    glutTimerFunc(1000/30, timer, 0);
 	glutReshapeFunc( reshape );
 	glutKeyboardFunc( keyboard );
 

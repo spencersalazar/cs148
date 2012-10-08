@@ -97,6 +97,8 @@ void display( void )
         if(j == 0 || j ==1) ytrans = 75;
         else ytrans = -75;
         
+        float scale = 0.8;
+        
         sglPushMatrix();
         
         for(int i = 0; i < NUM; i++)
@@ -104,9 +106,12 @@ void display( void )
             float frac = i/(float)NUM;
             sglColor(1.0f-frac, 1.0f-frac, 1.0f-frac);
             
-            sglScale(0.80, 0.80);
+            if(i < 2*NUM/3)
+                sglScale(scale, scale);
+            else
+                sglScale(1.0/scale, 1.0/scale);
             sglTranslate(xtrans, ytrans);
-            sglRotate(4*cosf(7*grot/180.0*M_PI));
+            sglRotate(8*cosf((j+1)*3*grot/180.0*M_PI+j));
             
             drawThing();
         }

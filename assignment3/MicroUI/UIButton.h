@@ -38,6 +38,8 @@ public:
     virtual void HandleMouseUp(const STPoint2& position);
     virtual void HandleMouseEnter();
     virtual void HandleMouseLeave();
+    
+    void setText(std::string text);
 
 private:
     // Font to use for text

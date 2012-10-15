@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		09BDB11C162BEBE300DBF3E4 /* UILine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 09BDB11A162BEBE300DBF3E4 /* UILine.cpp */; };
 		C3E799081624DB49007DE1C0 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3E799071624DB49007DE1C0 /* GLUT.framework */; };
 		C3E7990A1624DB4E007DE1C0 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3E799091624DB4E007DE1C0 /* OpenGL.framework */; };
 		E0CAAA10125AED8000D60E3F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E0CAAA04125AED8000D60E3F /* main.cpp */; };
@@ -41,6 +42,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		09BDB11A162BEBE300DBF3E4 /* UILine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UILine.cpp; sourceTree = "<group>"; };
+		09BDB11B162BEBE300DBF3E4 /* UILine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UILine.h; sourceTree = "<group>"; };
 		8DD76FB20486AB0100D96B5E /* MicroUI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MicroUI; sourceTree = BUILT_PRODUCTS_DIR; };
 		C3E799071624DB49007DE1C0 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = ../../../../../System/Library/Frameworks/GLUT.framework; sourceTree = "<group>"; };
 		C3E799091624DB4E007DE1C0 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = ../../../../../System/Library/Frameworks/OpenGL.framework; sourceTree = "<group>"; };
@@ -101,6 +104,8 @@
 				E0CAAA0D125AED8000D60E3F /* UIRectangle.h */,
 				E0CAAA0E125AED8000D60E3F /* UIWidget.cpp */,
 				E0CAAA0F125AED8000D60E3F /* UIWidget.h */,
+				09BDB11A162BEBE300DBF3E4 /* UILine.cpp */,
+				09BDB11B162BEBE300DBF3E4 /* UILine.h */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -203,6 +208,7 @@
 				E0CAAA13125AED8000D60E3F /* UIButton.cpp in Sources */,
 				E0CAAA14125AED8000D60E3F /* UILabel.cpp in Sources */,
 				E0CAAA15125AED8000D60E3F /* UIWidget.cpp in Sources */,
+				09BDB11C162BEBE300DBF3E4 /* UILine.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -23,6 +23,12 @@ UIButton::UIButton(STFont* font,
 *   Implement your button here.
 */
 
+void UIButton::setText(std::string text)
+{
+    mText = text;
+}
+
+
 void UIButton::Display()
 {
     float width = GetRectangle().pMax.x - GetRectangle().pMin.x;
@@ -38,7 +44,7 @@ void UIButton::Display()
     b = 1;
     a = 1;
     if(mState == PRESSED_INSIDE || mState == PRESSED_OUTSIDE)
-        b = 0;
+        b = 0.5;
     if(mState == PRESSED_OUTSIDE || mState == IDLE_OUTSIDE)
         a = 0.5;
     
@@ -55,11 +61,9 @@ void UIButton::Display()
     // center text
     glTranslatef(width/2.0-mTextWidth/2.0, -mFont->GetDescender(), 0);
     
-    // color white if pressed and with slight alpha if mouse is outside
+    // color with slight alpha if mouse is outside
     b = 0;
     a = 1;
-    if(mState == PRESSED_INSIDE || mState == PRESSED_OUTSIDE)
-        b = 1;
     if(mState == PRESSED_OUTSIDE || mState == IDLE_OUTSIDE)
         a = 0.5;
     

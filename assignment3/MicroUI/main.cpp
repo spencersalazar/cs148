@@ -17,11 +17,16 @@
 #include "UIButton.h"
 #include "UILabel.h"
 #include "UIWidget.h"
+#include "UILine.h"
 
 //
 // Include header for parsing config and line editor files
 //
 #include "parseConfig.h"
+
+#include <list>
+
+using namespace std;
 
 #define WIN_WIDTH 512
 #define WIN_HEIGHT 512
@@ -36,7 +41,7 @@
 static STFont* gFont = NULL;
 
 // List of widgets being displayed.
-static std::vector<UIWidget*> gWidgets;
+static list<UIWidget*> gWidgets;
 
 // Window size so we can properly update the UI.
 static int gWindowSizeX = 0;
@@ -66,6 +71,21 @@ static char gLoadFname[BUFSIZ];
 
 UIWidget * gEnteredWidget = NULL;
 UIWidget * gCaptureWidget = NULL;
+
+list<UILine *> gLines;
+UILine * gActiveLine = NULL;
+
+enum Mode
+{
+    MODE_CREATE,
+    MODE_DELETE
+};
+
+Mode gMode = MODE_CREATE;
+UIButton * gDeleteButton = NULL;
+
+int gCurrentLineID = 1;
+
 
 //
 
@@ -99,9 +119,42 @@ void AddNewLine(STPoint2 lineEndpt1, STPoint2 lineEndpt2, ImageChoice imageChoic
 }
 
 
-void MyButtonCallback(UIButton * button)
+void QuitCallback(UIButton * button)
 {
-    printf("I did it!\n");
+    exit(0);
+}
+
+
+void LineDeleteCallback(UILine * line)
+{
+    gLines.remove(line);
+    gWidgets.remove(line);
+    if(line == gActiveLine)
+        gActiveLine = NULL;
+    if(line == gCaptureWidget)
+        gCaptureWidget = NULL;
+    if(line == gEnteredWidget)
+        gEnteredWidget = NULL;
+    delete line;
+}
+
+
+void DeleteCallback(UIButton * button)
+{
+    if(gMode == MODE_CREATE)
+    {
+        gMode = MODE_DELETE;
+        gDeleteButton->setText("Create Mode");
+        UILine::SetDeleteMode(true);
+    }
+    else
+    {
+        gMode = MODE_CREATE;
+        gDeleteButton->setText("Delete Mode");
+        UILine::SetDeleteMode(false);
+    }
+    
+    glutPostRedisplay();
 }
 
 
@@ -121,15 +174,21 @@ void CreateWidgets()
     * it during testing to play with new widget types.
     */
  
-    AddWidget(new UIBox(STColor4f(0,0,1,1)),
-        UIRectangle(STPoint2(10,20), STPoint2(60, 50)));
+    UIRectangle nameLabelRect = UIRectangle(STPoint2(10, 10),
+                                            STPoint2(10+5+gFont->ComputeWidth("Line Editor"),
+                                                     10+gFont->GetHeight()));
+    AddWidget(new UIBox(STColor4f(1,1,1,1)), nameLabelRect);
+    AddWidget(new UILabel(gFont, "Line Editor"), nameLabelRect);
     
-    AddWidget(new UILabel(gFont, "back it up"),
-              UIRectangle(STPoint2(10,20), STPoint2(60, 50)));
+    AddWidget(new UIButton(gFont, "Quit", QuitCallback),
+              UIRectangle(STPoint2(WIN_WIDTH-80, 10), STPoint2(WIN_WIDTH-10, 10+gFont->GetHeight())));
     
-    AddWidget(new UIButton(gFont, "a button", MyButtonCallback),
-              UIRectangle(STPoint2(WIN_WIDTH-120,20), STPoint2(WIN_HEIGHT-10, 50)));
+    gDeleteButton = new UIButton(gFont, "Delete Mode", DeleteCallback);
+    AddWidget(gDeleteButton,
+              UIRectangle(STPoint2(WIN_WIDTH/2-80, 10), STPoint2(WIN_WIDTH/2+80, 10+gFont->GetHeight())));
 }
+
+
 //
 // Display the UI, including all widgets.
 //
@@ -155,9 +214,9 @@ void DisplayCallback()
 
     // Loop through all the widgets in the user
     // interface and tell each to display itself.
-    int numWidgets = (int) gWidgets.size();
-    for (int ii = 0; ii < numWidgets; ++ii) {
-        UIWidget* widget = gWidgets[ii];
+    for (list<UIWidget *>::iterator ii = gWidgets.begin();
+         ii != gWidgets.end(); ++ii) {
+        UIWidget* widget = *ii;
         widget->Display();
     }
 
@@ -192,10 +251,10 @@ void MouseCallback(int button, int state, int x, int y)
     UIWidget * receiver = NULL;
     if(gCaptureWidget == NULL)
     {
-        int numWidgets = (int) gWidgets.size();
-        for (int ii = 0; ii < numWidgets; ++ii)
+        for (list<UIWidget *>::iterator ii = gWidgets.begin();
+             ii != gWidgets.end(); ++ii)
         {
-            UIWidget * widget = gWidgets[ii];
+            UIWidget* widget = *ii;
             if(widget->HitTest(position))
                 receiver = widget;
         }
@@ -207,8 +266,17 @@ void MouseCallback(int button, int state, int x, int y)
         {
             if(receiver != NULL)
             {
-                receiver->HandleMouseDown(position);
                 gCaptureWidget = receiver;
+                gCaptureWidget->HandleMouseDown(position);
+                redisplay = true;
+            }
+            else
+            {
+                char buf[64];
+                snprintf(buf, 64, "%i", gCurrentLineID++);
+                gActiveLine = new UILine(position, position, string(buf), LineDeleteCallback);
+                gWidgets.push_back(gActiveLine);
+                
                 redisplay = true;
             }
         }
@@ -218,6 +286,15 @@ void MouseCallback(int button, int state, int x, int y)
             {
                 gCaptureWidget->HandleMouseUp(position);
                 gCaptureWidget = NULL;
+                redisplay = true;
+            }
+            
+            if(gActiveLine)
+            {
+                gActiveLine->finalize();
+                gLines.push_back(gActiveLine);
+                
+                gActiveLine = NULL;
                 redisplay = true;
             }
         }
@@ -257,6 +334,13 @@ void MotionCallback(int x, int y)
         redisplay = true;
     }
     
+    if(gActiveLine)
+    {
+        gActiveLine->setEndpoint(position);
+        
+        redisplay = true;
+    }
+    
     if(redisplay)
         glutPostRedisplay();
 }
@@ -268,10 +352,10 @@ void PassiveMotionCallback(int x, int y)
     bool redisplay = false;
 
     UIWidget * receiver = NULL;
-    int numWidgets = (int) gWidgets.size();
-    for (int ii = 0; ii < numWidgets; ++ii)
+    for (list<UIWidget *>::iterator ii = gWidgets.begin();
+         ii != gWidgets.end(); ++ii)
     {
-        UIWidget * widget = gWidgets[ii];
+        UIWidget* widget = *ii;
         if(widget->HitTest(position))
             receiver = widget;
     }
@@ -307,6 +391,7 @@ void Initialize()
     glDepthMask(GL_FALSE);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_SMOOTH);
 
     gFont = new STFont("resources/arial.ttf", 24);
 

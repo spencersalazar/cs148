@@ -18,33 +18,39 @@ int grot = 0;
 //int brot;
 
 
-void drawThing()
+void drawThing(STColor4f c)
 {
-//    sglBeginTriangles();
-//    
-//    sglVertex(-50, -50);
-//    sglVertex( 50, -50);
-//    sglVertex(-50,  50);
-//    sglVertex( 50,  50);
-//    
-//    sglEnd();
+    sglBeginTriangles();
     
-    const int TRIS = 20;
-    const float RADIUS = 50;
+    sglVertex(-50, -50);
+    sglVertex( 50, -50);
     
-    for(int i = 0; i < TRIS; i++)
-    {
-        float theta = ((float) i)/TRIS*2*M_PI;
-        float theta_plus_one = ((float) i+1)/TRIS*2*M_PI;
-        
-        sglBeginTriangles();
-        
-        sglVertex(0, 0);
-        sglVertex(RADIUS*cosf(theta), RADIUS*sinf(theta));
-        sglVertex(RADIUS*cosf(theta_plus_one), RADIUS*sinf(theta_plus_one));
-        
-        sglEnd();
-    }
+    sglColor(c.r, c.g, c.b);
+    
+    sglVertex(-50,  50);
+    sglVertex( 50,  50);
+    
+    sglEnd();
+    
+//    const int TRIS = 20;
+//    const float RADIUS = 50;
+//    
+//    for(int i = 0; i < TRIS; i++)
+//    {
+//        float theta = ((float) i)/TRIS*2*M_PI;
+//        float theta_plus_one = ((float) i+1)/TRIS*2*M_PI;
+//        
+//        if(i >= TRIS/2)
+//            sglColor(c.r, c.g, c.b);
+//        
+//        sglBeginTriangles();
+//        
+//        sglVertex(0, 0);
+//        sglVertex(RADIUS*cosf(theta), RADIUS*sinf(theta));
+//        sglVertex(RADIUS*cosf(theta_plus_one), RADIUS*sinf(theta_plus_one));
+//        
+//        sglEnd();
+//    }
 }
 
 
@@ -87,7 +93,7 @@ void display( void )
     sglRotate(grot++);
     sglScale(0.5, 0.5);
     sglColor(1, 1, 1);
-    drawThing();
+    drawThing(STColor4f(1, 1, 1));
 
     for(int j = 0; j < 4; j++)
     {
@@ -98,13 +104,17 @@ void display( void )
         else ytrans = -75;
         
         float scale = 0.8;
+        STColor4f lastColor(1, 1, 1);
+        STColor4f newColor;
         
         sglPushMatrix();
         
         for(int i = 0; i < NUM; i++)
         {
             float frac = i/(float)NUM;
-            sglColor(1.0f-frac, 1.0f-frac, 1.0f-frac);
+            int mod = i%3;
+            
+            sglColor(lastColor.r, lastColor.g, lastColor.b);
             
             if(i < 2*NUM/3)
                 sglScale(scale, scale);
@@ -113,7 +123,14 @@ void display( void )
             sglTranslate(xtrans, ytrans);
             sglRotate(8*cosf((j+1)*3*grot/180.0*M_PI+j));
             
-            drawThing();
+            newColor = STColor4f(((mod == 0)*frac + (1-frac)*(mod == 1))*(1-frac),
+                                 ((mod == 1)*frac + (1-frac)*(mod == 2))*(1-frac),
+                                 ((mod == 2)*frac + (1-frac)*(mod == 0))*(1-frac),
+                                 1);
+            
+            drawThing(newColor);
+            
+            lastColor = newColor;
         }
         
         sglPopMatrix();

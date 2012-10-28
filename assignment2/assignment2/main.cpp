@@ -18,39 +18,52 @@ int grot = 0;
 //int brot;
 
 
-void drawThing(STColor4f c)
+void drawThing(STColor4f a, STColor4f b)
 {
-    sglBeginTriangles();
-    
-    sglVertex(-50, -50);
-    sglVertex( 50, -50);
-    
-    sglColor(c.r, c.g, c.b);
-    
-    sglVertex(-50,  50);
-    sglVertex( 50,  50);
-    
-    sglEnd();
-    
-//    const int TRIS = 20;
-//    const float RADIUS = 50;
+//    sglBeginTriangles();
 //    
-//    for(int i = 0; i < TRIS; i++)
-//    {
-//        float theta = ((float) i)/TRIS*2*M_PI;
-//        float theta_plus_one = ((float) i+1)/TRIS*2*M_PI;
-//        
-//        if(i >= TRIS/2)
-//            sglColor(c.r, c.g, c.b);
-//        
-//        sglBeginTriangles();
-//        
-//        sglVertex(0, 0);
-//        sglVertex(RADIUS*cosf(theta), RADIUS*sinf(theta));
-//        sglVertex(RADIUS*cosf(theta_plus_one), RADIUS*sinf(theta_plus_one));
-//        
-//        sglEnd();
-//    }
+//    sglVertex(-50, -50);
+//    sglVertex( 50, -50);
+//    
+//    sglColor(c.r, c.g, c.b);
+//    
+//    sglVertex(-50,  50);
+//    sglVertex( 50,  50);
+//    
+//    sglEnd();
+    
+    const int TRIS = 20;
+    const float RADIUS = 50;
+    
+    for(int i = 0; i < TRIS; i++)
+    {
+        float theta = ((float) i)/TRIS*2*M_PI;
+        float theta_plus_one = ((float) i+1)/TRIS*2*M_PI;
+        
+        sglBeginTriangles();
+        
+        float alpha;
+        
+        alpha = 0.5;
+        sglColor(a.r*(1-alpha) + b.r*alpha,
+                 a.g*(1-alpha) + b.g*alpha,
+                 a.b*(1-alpha) + b.b*alpha);
+        sglVertex(0, 0);
+        
+        alpha = 0.5+0.5*sinf(theta);
+        sglColor(a.r*(1-alpha) + b.r*alpha,
+                 a.g*(1-alpha) + b.g*alpha,
+                 a.b*(1-alpha) + b.b*alpha);
+        sglVertex(RADIUS*cosf(theta), RADIUS*sinf(theta));
+        
+        alpha = 0.5+0.5*sinf(theta_plus_one);
+        sglColor(a.r*(1-alpha) + b.r*alpha,
+                 a.g*(1-alpha) + b.g*alpha,
+                 a.b*(1-alpha) + b.b*alpha);
+        sglVertex(RADIUS*cosf(theta_plus_one), RADIUS*sinf(theta_plus_one));
+        
+        sglEnd();
+    }
 }
 
 
@@ -93,7 +106,7 @@ void display( void )
     sglRotate(grot++);
     sglScale(0.5, 0.5);
     sglColor(1, 1, 1);
-    drawThing(STColor4f(1, 1, 1));
+    drawThing(STColor4f(1, 1, 1), STColor4f(1, 1, 1));
 
     for(int j = 0; j < 4; j++)
     {
@@ -128,7 +141,7 @@ void display( void )
                                  ((mod == 2)*frac + (1-frac)*(mod == 0))*(1-frac),
                                  1);
             
-            drawThing(newColor);
+            drawThing(lastColor, newColor);
             
             lastColor = newColor;
         }

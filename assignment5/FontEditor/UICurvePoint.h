@@ -22,8 +22,9 @@ typedef void (*CPMoveCallback)(UICurvePoint *);
 class UICurvePoint : public UIWidget
 {
 public:
-    UICurvePoint(TTPoint * pt, CPSelectionCallback callback, CPMoveCallback moveCallback) :
+    UICurvePoint(TTPoint * pt, TTContour * ct, CPSelectionCallback callback, CPMoveCallback moveCallback) :
     m_point(pt),
+    m_contour(ct),
     m_mouseOver(false),
     m_mouseDown(false),
     m_selected(false),
@@ -44,6 +45,7 @@ public:
     
     void Deselect() { m_selected = false; }
     inline TTPoint * GetPoint() { return m_point; }
+    inline TTContour * GetContour() { return m_contour; }
     
 protected:
     
@@ -54,6 +56,7 @@ protected:
     bool m_mouseDown;
     bool m_mouseOver;
     TTPoint * m_point;
+    TTContour * m_contour;
 };
 
 

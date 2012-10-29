@@ -68,6 +68,7 @@ list<UICurvePoint *> gCurvePoints;
 UICurvePoint * gSelectedCurvePoint = NULL;
 TTContour * gActiveContour = NULL;
 int gSelectedContour = -1;
+STPoint2 gContourMovePoint = STPoint2(0,0);
 TTGlyph * gGlyph = NULL;
 
 UIWidget * gCaptureWidget = NULL;
@@ -273,9 +274,9 @@ void DisplayCallback()
     for(int i = 0; i < gGlyph->NumContours(); i++)
     {
         if(i == gSelectedContour)
-            glColor4f(0, 0, 0, 1);
-        else
             glColor4f(0.95, 0.25, 0.25, 1);
+        else
+            glColor4f(0, 0, 0, 1);
         RenderContour(gGlyph->GetContour(i));
     }
 
@@ -315,7 +316,28 @@ void KeyboardCallback(unsigned char key, int x, int y)
             
         case char(127):
             // delete
-            if(gSelectedCurvePoint)
+            if(gSelectedContour >= 0)
+            {
+                TTContour * c = gGlyph->GetContour(gSelectedContour);
+                if(gActiveContour == c)
+                    gActiveContour = NULL;
+                gGlyph->RemoveContour(gSelectedContour);
+                
+                for(list<UICurvePoint *>::iterator i = gCurvePoints.begin();
+                    i != gCurvePoints.end();)
+                {
+                    list<UICurvePoint *>::iterator j = i++;
+                    if((*j)->GetContour() == c)
+                        gCurvePoints.erase(j);
+                }
+                
+                gSelectedContour = -1;
+                if(c == gActiveContour)
+                    gActiveContour = NULL;
+                
+                redisplay = true;
+            }
+            else if(gSelectedCurvePoint)
             {
                 int len = gActiveContour->NumPoints();
                 for(int i = 0; i < len; i++)
@@ -395,7 +417,7 @@ void KeyboardCallback(unsigned char key, int x, int y)
                 for(int p = 0; p < contour->NumPoints(); p++)
                 {
                     TTPoint * point = contour->GetPoint(p);
-                    UICurvePoint * cp = new UICurvePoint(point, CurvePointSelectCallback, CurvePointMoveCallback);
+                    UICurvePoint * cp = new UICurvePoint(point, contour, CurvePointSelectCallback, CurvePointMoveCallback);
                     gWidgets.push_back(cp);
                     gCurvePoints.push_back(cp);
                 }
@@ -451,83 +473,79 @@ void MouseCallback(int button, int state, int x, int y)
      *   Here, you can capture and use the left mouse button click and release
      *   events to perform various actions for editing glyphs.
      */
-    if (button == GLUT_LEFT_BUTTON) {
-        STPoint2 position = STPoint2(x, gWindowSizeY - y);
+    if(button == GLUT_LEFT_BUTTON)
+    {
         bool redisplay = false;
+        STPoint2 position = STPoint2(x, gWindowSizeY - y);
         
-        UIWidget * receiver = NULL;
-        if(gCaptureWidget == NULL)
+        if(gSelectedContour != -1)
         {
-            for (list<UIWidget *>::iterator ii = gWidgets.begin();
-                 ii != gWidgets.end(); ++ii)
-            {
-                UIWidget* widget = *ii;
-                if(widget->HitTest(position))
-                    receiver = widget;
-            }
+            if(state == GLUT_DOWN)
+                gContourMovePoint = position;
         }
-        
-        if(state == GLUT_DOWN)
+        else
         {
-            if(receiver != NULL)
-            {
-                gCaptureWidget = receiver;
-                gCaptureWidget->HandleMouseDown(position);
-                redisplay = true;
-            }
-            else
-            {
-//                char buf[64];
-//                snprintf(buf, 64, "%i", gCurrentLineID++);
-//                gActiveLine = new UILine(position, position, string(buf), LineDeleteCallback);
-//                gWidgets.push_back(gActiveLine);
-                
-                if(gActiveContour == NULL)
-                    NewGlyphCallback(NULL);
-                
-                TTPoint * newPt = new TTPoint;
-                newPt->mOnCurve = (gPointMode == ONLINE_MODE) && !(glutGetModifiers() &GLUT_ACTIVE_SHIFT);
-                newPt->mCoordinates = position;
-                
-                gActiveContour->AddPoint(newPt);
-                
-                UICurvePoint * widget = new UICurvePoint(newPt, CurvePointSelectCallback, CurvePointMoveCallback);
-                gWidgets.push_back(widget);
-                gCurvePoints.push_back(widget);
-                
-                redisplay = true;
-            }
-        }
-        else if(state == GLUT_UP)
-        {
-//            for(list<UICurvePoint*>::iterator i = gCurvePoints.begin();
-//                i != gCurvePoints.end(); i++)
-//            {
-//                (*i)->Deselect();
-//            }
             
-            if(gSelectedCurvePoint)
+            UIWidget * receiver = NULL;
+            if(gCaptureWidget == NULL)
             {
-                gSelectedCurvePoint->Deselect();
-                redisplay = true;
+                for (list<UIWidget *>::iterator ii = gWidgets.begin();
+                     ii != gWidgets.end(); ++ii)
+                {
+                    UIWidget* widget = *ii;
+                    if(widget->HitTest(position))
+                        receiver = widget;
+                }
             }
-            gSelectedCurvePoint = NULL;
-
-            if(gCaptureWidget)
+            
+            if(state == GLUT_DOWN)
             {
-                gCaptureWidget->HandleMouseUp(position);
-                gCaptureWidget = NULL;
-                redisplay = true;
+                if(receiver != NULL)
+                {
+                    gCaptureWidget = receiver;
+                    gCaptureWidget->HandleMouseDown(position);
+                    redisplay = true;
+                }
+                else
+                {
+                    if(gActiveContour == NULL)
+                        NewGlyphCallback(NULL);
+                    
+                    TTPoint * newPt = new TTPoint;
+                    newPt->mOnCurve = (gPointMode == ONLINE_MODE) && !(glutGetModifiers() &GLUT_ACTIVE_SHIFT);
+                    newPt->mCoordinates = position;
+                    
+                    TTContour * contour;
+                    if(gSelectedContour != -1)
+                        contour = gGlyph->GetContour(gSelectedContour);
+                    else
+                        contour = gActiveContour;
+                    
+                    contour->AddPoint(newPt);
+                    
+                    UICurvePoint * widget = new UICurvePoint(newPt, contour, CurvePointSelectCallback, CurvePointMoveCallback);
+                    gWidgets.push_back(widget);
+                    gCurvePoints.push_back(widget);
+                    
+                    redisplay = true;
+                }
             }
-                        
-//            if(gActiveLine)
-//            {
-//                gActiveLine->finalize();
-//                gLines.push_back(gActiveLine);
-//                
-//                gActiveLine = NULL;
-//                redisplay = true;
-//            }
+            else if(state == GLUT_UP)
+            {
+                if(gSelectedCurvePoint)
+                {
+                    gSelectedCurvePoint->Deselect();
+                    redisplay = true;
+                }
+                gSelectedCurvePoint = NULL;
+                
+                if(gCaptureWidget)
+                {
+                    gCaptureWidget->HandleMouseUp(position);
+                    gCaptureWidget = NULL;
+                    redisplay = true;
+                }
+            }
         }
         
         if(redisplay)
@@ -561,39 +579,49 @@ void MotionCallback(int x, int y)
      */
     else if (gMouseActiveButton == GLUT_LEFT_BUTTON)
     {
-        STPoint2 position = STPoint2(x, gWindowSizeY - y);
         bool redisplay = false;
-        
-        if(gCaptureWidget)
+        STPoint2 position = STPoint2(x, gWindowSizeY - y);
+
+        if(gSelectedContour != -1)
         {
-            if(gCaptureWidget->HitTest(position))
+            STVector2 diff = position - gContourMovePoint;
+            gContourMovePoint = position;
+            TTContour * c = gGlyph->GetContour(gSelectedContour);
+            for(int i = 0; i < c->NumPoints(); i++)
             {
-                if(gEnteredWidget != gCaptureWidget)
-                {
-                    gCaptureWidget->HandleMouseEnter();
-                    gEnteredWidget = gCaptureWidget;
-                }
+                TTPoint * p = c->GetPoint(i);
+                p->mCoordinates += diff;
             }
-            else
-            {
-                if(gEnteredWidget == gCaptureWidget)
-                {
-                    gEnteredWidget->HandleMouseLeave();
-                    gEnteredWidget = NULL;
-                }
-            }
-            
-            gCaptureWidget->HandleMouseMove(position);
             
             redisplay = true;
         }
-        
-//        if(gActiveLine)
-//        {
-//            gActiveLine->setEndpoint(position);
-//            
-//            redisplay = true;
-//        }
+        else
+        {
+            
+            if(gCaptureWidget)
+            {
+                if(gCaptureWidget->HitTest(position))
+                {
+                    if(gEnteredWidget != gCaptureWidget)
+                    {
+                        gCaptureWidget->HandleMouseEnter();
+                        gEnteredWidget = gCaptureWidget;
+                    }
+                }
+                else
+                {
+                    if(gEnteredWidget == gCaptureWidget)
+                    {
+                        gEnteredWidget->HandleMouseLeave();
+                        gEnteredWidget = NULL;
+                    }
+                }
+                
+                gCaptureWidget->HandleMouseMove(position);
+                
+                redisplay = true;
+            }
+        }
         
         if(redisplay)
             glutPostRedisplay();

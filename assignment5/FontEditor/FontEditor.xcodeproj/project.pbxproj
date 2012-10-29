@@ -13,6 +13,7 @@
 		09E3FE33163DB65300425F73 /* UILine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 09E3FE2B163DB65300425F73 /* UILine.cpp */; };
 		09E3FE34163DB65300425F73 /* UIWidget.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 09E3FE2E163DB65300425F73 /* UIWidget.cpp */; };
 		09E3FE41163DC48500425F73 /* UICurvePoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 09E3FE3F163DC48500425F73 /* UICurvePoint.cpp */; };
+		09E3FE44163E207700425F73 /* loadsave.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 09E3FE42163E207700425F73 /* loadsave.cpp */; };
 		8DD76F650486A84900D96B5E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 08FB7796FE84155DC02AAC07 /* main.cpp */; settings = {ATTRIBUTES = (); }; };
 		E0213B270F29A0E1001B68DE /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E0213B250F29A0E1001B68DE /* GLUT.framework */; };
 		E0213B280F29A0E1001B68DE /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E0213B260F29A0E1001B68DE /* OpenGL.framework */; };
@@ -69,6 +70,8 @@
 		09E3FE2F163DB65300425F73 /* UIWidget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UIWidget.h; sourceTree = "<group>"; };
 		09E3FE3F163DC48500425F73 /* UICurvePoint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UICurvePoint.cpp; sourceTree = "<group>"; };
 		09E3FE40163DC48500425F73 /* UICurvePoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UICurvePoint.h; sourceTree = "<group>"; };
+		09E3FE42163E207700425F73 /* loadsave.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = loadsave.cpp; sourceTree = "<group>"; };
+		09E3FE43163E207700425F73 /* loadsave.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = loadsave.h; sourceTree = "<group>"; };
 		8DD76F6C0486A84900D96B5E /* FontEditor */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = FontEditor; sourceTree = BUILT_PRODUCTS_DIR; };
 		E0213B1B0F29A0CE001B68DE /* libst.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libst.xcodeproj; path = ../libst/xcode/libst.xcodeproj; sourceTree = SOURCE_ROOT; };
 		E0213B250F29A0E1001B68DE /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = /System/Library/Frameworks/GLUT.framework; sourceTree = "<absolute>"; };
@@ -133,6 +136,8 @@
 				E0213B690F29A1B0001B68DE /* TTTables.h */,
 				09E3FE3F163DC48500425F73 /* UICurvePoint.cpp */,
 				09E3FE40163DC48500425F73 /* UICurvePoint.h */,
+				09E3FE42163E207700425F73 /* loadsave.cpp */,
+				09E3FE43163E207700425F73 /* loadsave.h */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -259,6 +264,7 @@
 				09E3FE33163DB65300425F73 /* UILine.cpp in Sources */,
 				09E3FE34163DB65300425F73 /* UIWidget.cpp in Sources */,
 				09E3FE41163DC48500425F73 /* UICurvePoint.cpp in Sources */,
+				09E3FE44163E207700425F73 /* loadsave.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

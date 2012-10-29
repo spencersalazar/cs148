@@ -38,6 +38,14 @@ inline STPoint2 operator+(const STPoint2 &p1, const STPoint2 &p2)
     return STPoint2(p1.x+p2.x, p1.y+p2.y);
 }
 
+template <typename T>
+T restrictTo(T v, const T &max)
+{
+    while(v < 0) v += max;
+    while(v >= max) v -= max;
+    return v;
+}
+
 //
 // Globals used by this application.
 // As a rule, globals are Evil, but this is a small application
@@ -84,6 +92,8 @@ gPointMode = ONLINE_MODE;
 UIButton * gOnOffLineButton = NULL;
 UIButton * gSelectModeButton = NULL;
 
+bool gPreserveTangents = true;
+
 
 void AddWidget(UIWidget* widget, const UIRectangle& rectangle)
 {
@@ -126,10 +136,114 @@ void CurvePointSelectCallback(UICurvePoint * curvePoint)
     glutPostRedisplay();
 }
 
+bool Intersection(const STPoint2 &a1, const STPoint2 &b1,
+                  const STPoint2 &a2, const STPoint2 &b2,
+                  STPoint2 &i)
+{
+    float A1 = b1.y - a1.y;
+    float B1 = a1.x - b1.x;
+    float C1 = A1*a1.x + B1*a1.y;
+    float A2 = b2.y - a2.y;
+    float B2 = a2.x - b2.x;
+    float C2 = A2*a2.x + B2*a2.y;
+    
+    float det = A1*B2 - A2*B1;
+    
+    if(det == 0)
+    {
+        return false;
+    }
+    else
+    {
+        i.x = (B2*C1 - B1*C2)/det;
+        i.y = (A1*C2 - A2*C1)/det;
+        return true;
+    }
+}
+
 void CurvePointMoveCallback(UICurvePoint * curvePoint)
 {
+    if(!gPreserveTangents)
+        return;
+    
     TTPoint * pt = curvePoint->GetPoint();
     TTContour * ct = curvePoint->GetContour();
+    
+    if(pt->mOnCurve)
+        return;
+    
+    int numPts = ct->NumPoints();
+    if(numPts < 5)
+        return;
+    
+    int ptIndex = -1;
+    for(int i = 0; i < numPts; i++)
+    {
+        if(pt == ct->GetPoint(i))
+        {
+            ptIndex = i;
+            break;
+        }
+    }
+    
+    assert(ptIndex != -1);
+    
+    int ptM1Index = restrictTo(ptIndex-1, numPts);
+    int ptM2Index = restrictTo(ptIndex-2, numPts);
+    int ptP1Index = restrictTo(ptIndex+1, numPts);
+    int ptP2Index = restrictTo(ptIndex+2, numPts);
+        
+    TTPoint * ptM1 = ct->GetPoint(ptM1Index);
+    TTPoint * ptM2 = ct->GetPoint(ptM2Index);
+    if(ptM1->mOnCurve && !ptM2->mOnCurve)
+    {
+        int ptM3Index = restrictTo(ptIndex-3, numPts);
+        TTPoint * ptM3 = ct->GetPoint(ptM3Index);
+        
+        if(ptM3->mOnCurve)
+        {
+            int ptM4Index = restrictTo(ptIndex-4, numPts);
+            TTPoint * ptM4 = ct->GetPoint(ptM4Index);
+            Intersection(pt->mCoordinates, ptM1->mCoordinates,
+                         ptM3->mCoordinates, ptM4->mCoordinates,
+                         ptM2->mCoordinates);
+        }
+        else
+        {
+            // translate
+            STVector2 trM2 = ptM2->mCoordinates - ptM1->mCoordinates;
+            STVector2 tr = pt->mCoordinates - ptM1->mCoordinates;
+            STVector2 tr_unit = tr/tr.Length();
+            STVector2 newTrM2 = STVector2(-tr_unit.x, -tr_unit.y)*trM2.Length();
+            ptM2->mCoordinates = ptM1->mCoordinates + newTrM2;
+        }
+    }
+    
+    TTPoint * ptP1 = ct->GetPoint(ptP1Index);
+    TTPoint * ptP2 = ct->GetPoint(ptP2Index);
+    if(ptP1->mOnCurve && !ptP2->mOnCurve)
+    {
+        int ptP3Index = restrictTo(ptIndex+3, numPts);
+        TTPoint * ptP3 = ct->GetPoint(ptP3Index);
+        
+        if(ptP3->mOnCurve)
+        {
+            int ptP4Index = restrictTo(ptIndex+4, numPts);
+            TTPoint * ptP4 = ct->GetPoint(ptP4Index);
+            Intersection(pt->mCoordinates, ptP1->mCoordinates,
+                         ptP3->mCoordinates, ptP4->mCoordinates,
+                         ptP2->mCoordinates);
+        }
+        else
+        {
+            // translate
+            STVector2 trP2 = ptP2->mCoordinates - ptP1->mCoordinates;
+            STVector2 tr = pt->mCoordinates - ptP1->mCoordinates;
+            STVector2 tr_unit = tr/tr.Length();
+            STVector2 newTrP2 = STVector2(-tr_unit.x, -tr_unit.y)*trP2.Length();
+            ptP2->mCoordinates = ptP1->mCoordinates + newTrP2;
+        }
+    }
 }
 
 
@@ -453,6 +567,11 @@ void KeyboardCallback(unsigned char key, int x, int y)
                 gSelectedCurvePoint->GetPoint()->mOnCurve = !gSelectedCurvePoint->GetPoint()->mOnCurve;
                 redisplay = true;
             }
+            break;
+            
+        case 't':
+            gPreserveTangents = !gPreserveTangents;
+            fprintf(stderr, "preserve tangents: %s\n", (gPreserveTangents ? "on" : "off"));
             break;
     }
     

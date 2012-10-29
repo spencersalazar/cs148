@@ -128,10 +128,8 @@ void CurvePointSelectCallback(UICurvePoint * curvePoint)
 
 void CurvePointMoveCallback(UICurvePoint * curvePoint)
 {
-    if(gSelectedContour)
-    {
-        
-    }
+    TTPoint * pt = curvePoint->GetPoint();
+    TTContour * ct = curvePoint->GetContour();
 }
 
 
@@ -435,6 +433,14 @@ void KeyboardCallback(unsigned char key, int x, int y)
             
             break;
             
+        case 'a':
+            if(gSelectedContour != -1)
+            {
+                gActiveContour = gGlyph->GetContour(gSelectedContour);
+                gSelectedContour = -1;
+            }
+            break;
+            
         case 'p':
             gPreviewMode = !gPreviewMode;
             if (gPreviewMode) PreparePreview();
@@ -577,7 +583,7 @@ void MotionCallback(int x, int y)
      *   Here, you can capture and use the left mouse button move events to
      *   move control points around.
      */
-    else if (gMouseActiveButton == GLUT_LEFT_BUTTON)
+    else if(gMouseActiveButton == GLUT_LEFT_BUTTON)
     {
         bool redisplay = false;
         STPoint2 position = STPoint2(x, gWindowSizeY - y);

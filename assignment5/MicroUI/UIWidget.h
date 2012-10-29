@@ -77,11 +77,11 @@ public:
     * can override these functions to implement their
     * own interaction logic.
     */
-    virtual void HandleMouseDown(const STPoint2& position);
-    virtual void HandleMouseUp(const STPoint2& position);
+    virtual void HandleMouseDown(const STPoint2& position, int modifiers = 0);
+    virtual void HandleMouseUp(const STPoint2& position, int modifiers = 0);
     virtual void HandleMouseEnter();
     virtual void HandleMouseLeave();
-    virtual void HandleMouseMove(const STPoint2& position);
+    virtual void HandleMouseMove(const STPoint2& position, int modifiers = 0);
 
 private:
     /**

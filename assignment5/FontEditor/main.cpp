@@ -92,7 +92,7 @@ gPointMode = ONLINE_MODE;
 UIButton * gOnOffLineButton = NULL;
 UIButton * gSelectModeButton = NULL;
 
-bool gPreserveTangents = true;
+bool gPreserveTangents = false;
 
 
 void AddWidget(UIWidget* widget, const UIRectangle& rectangle)
@@ -570,14 +570,20 @@ void KeyboardCallback(unsigned char key, int x, int y)
             break;
             
         case 't':
-            gPreserveTangents = !gPreserveTangents;
-            fprintf(stderr, "preserve tangents: %s\n", (gPreserveTangents ? "on" : "off"));
+            if(gSelectedCurvePoint)
+                gSelectedCurvePoint->ForceContinuousTanget();
+            redisplay = true;
             break;
+//            gPreserveTangents = !gPreserveTangents;
+//            fprintf(stderr, "preserve tangents: %s\n", (gPreserveTangents ? "on" : "off"));
+//            break;
     }
     
     if(redisplay)
         glutPostRedisplay();
 }
+
+static int gModifiers = 0;
 
 //
 // Mouse event handler (two functions - click and move)
@@ -593,6 +599,8 @@ void MouseCallback(int button, int state, int x, int y)
     //
     if (state == GLUT_DOWN) gMouseActiveButton = button;
     else                    gMouseActiveButton = -1;
+    
+    gModifiers = glutGetModifiers();
     
     /*** CS148 TODO
      *   Here, you can capture and use the left mouse button click and release
@@ -628,7 +636,7 @@ void MouseCallback(int button, int state, int x, int y)
                 if(receiver != NULL)
                 {
                     gCaptureWidget = receiver;
-                    gCaptureWidget->HandleMouseDown(position);
+                    gCaptureWidget->HandleMouseDown(position, glutGetModifiers());
                     redisplay = true;
                 }
                 else
@@ -666,7 +674,7 @@ void MouseCallback(int button, int state, int x, int y)
                 
                 if(gCaptureWidget)
                 {
-                    gCaptureWidget->HandleMouseUp(position);
+                    gCaptureWidget->HandleMouseUp(position, glutGetModifiers());
                     gCaptureWidget = NULL;
                     redisplay = true;
                 }
@@ -722,7 +730,6 @@ void MotionCallback(int x, int y)
         }
         else
         {
-            
             if(gCaptureWidget)
             {
                 if(gCaptureWidget->HitTest(position))
@@ -742,7 +749,7 @@ void MotionCallback(int x, int y)
                     }
                 }
                 
-                gCaptureWidget->HandleMouseMove(position);
+                gCaptureWidget->HandleMouseMove(position, gModifiers);
                 
                 redisplay = true;
             }
@@ -783,7 +790,7 @@ void PassiveMotionCallback(int x, int y)
     
     if(gEnteredWidget != NULL)
     {
-        gEnteredWidget->HandleMouseMove(position);
+        gEnteredWidget->HandleMouseMove(position, 0);
         redisplay = true;
     }
     

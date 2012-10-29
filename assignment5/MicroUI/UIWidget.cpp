@@ -34,12 +34,12 @@ bool UIWidget::HitTest(const STPoint2& position)
     return GetRectangle().Contains(position);
 }
 
-void UIWidget::HandleMouseDown(const STPoint2& position) {}
+void UIWidget::HandleMouseDown(const STPoint2& position, int modifiers) {}
 
-void UIWidget::HandleMouseUp(const STPoint2& position) {}
+void UIWidget::HandleMouseUp(const STPoint2& position, int modifiers) {}
 
 void UIWidget::HandleMouseEnter() {}
 
 void UIWidget::HandleMouseLeave() {}
 
-void UIWidget::HandleMouseMove(const STPoint2& position) {}
+void UIWidget::HandleMouseMove(const STPoint2& position, int modifiers) {}

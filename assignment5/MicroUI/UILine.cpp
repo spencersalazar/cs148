@@ -76,7 +76,7 @@ bool UILine::HitTest(const STPoint2& position)
     return false;
 }
 
-void UILine::HandleMouseDown(const STPoint2& position)
+void UILine::HandleMouseDown(const STPoint2& position, int modifiers)
 {
     if(s_deleteMode)
     {
@@ -100,7 +100,7 @@ void UILine::HandleMouseDown(const STPoint2& position)
     }
 }
 
-void UILine::HandleMouseUp(const STPoint2& position)
+void UILine::HandleMouseUp(const STPoint2& position, int modifiers)
 {
     m_modifyPoint = NULL;
     m_editing = false;
@@ -117,7 +117,7 @@ void UILine::HandleMouseLeave()
     m_highlighted = false;
 }
 
-void UILine::HandleMouseMove(const STPoint2& position)
+void UILine::HandleMouseMove(const STPoint2& position, int modifiers)
 {
     if(m_modifyPoint)
     {

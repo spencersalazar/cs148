@@ -39,13 +39,15 @@ public:
     void HandleMouseEnter();
     void HandleMouseLeave();
     
-    virtual void HandleMouseDown(const STPoint2& position);
-    virtual void HandleMouseUp(const STPoint2& position);
-    virtual void HandleMouseMove(const STPoint2& position);
+    virtual void HandleMouseDown(const STPoint2& position, int modifiers = 0);
+    virtual void HandleMouseUp(const STPoint2& position, int modifiers = 0);
+    virtual void HandleMouseMove(const STPoint2& position, int modifiers = 0);
     
     void Deselect() { m_selected = false; }
     inline TTPoint * GetPoint() { return m_point; }
     inline TTContour * GetContour() { return m_contour; }
+    
+    void ForceContinuousTanget();
     
 protected:
     
@@ -57,6 +59,8 @@ protected:
     bool m_mouseOver;
     TTPoint * m_point;
     TTContour * m_contour;
+    
+    STPoint2 m_lastMouseLocation;
 };
 
 

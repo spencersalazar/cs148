@@ -55,11 +55,11 @@ public:
     virtual void Display();
     virtual bool HitTest(const STPoint2& position);
     
-    virtual void HandleMouseDown(const STPoint2& position);
-    virtual void HandleMouseUp(const STPoint2& position);
+    virtual void HandleMouseDown(const STPoint2& position, int modifiers = 0);
+    virtual void HandleMouseUp(const STPoint2& position, int modifiers = 0);
     virtual void HandleMouseEnter();
     virtual void HandleMouseLeave();
-    virtual void HandleMouseMove(const STPoint2& position);
+    virtual void HandleMouseMove(const STPoint2& position, int modifiers = 0);
     
     static void SetDeleteMode(bool deleteMode) { s_deleteMode = deleteMode; }
     

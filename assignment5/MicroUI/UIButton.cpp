@@ -73,12 +73,12 @@ void UIButton::Display()
     glPopMatrix();
 }
 
-void UIButton::HandleMouseDown(const STPoint2& position)
+void UIButton::HandleMouseDown(const STPoint2& position, int modifiers)
 {
     mState = PRESSED_INSIDE;
 }
 
-void UIButton::HandleMouseUp(const STPoint2& position)
+void UIButton::HandleMouseUp(const STPoint2& position, int modifiers)
 {
     if(mState == PRESSED_INSIDE)
     {

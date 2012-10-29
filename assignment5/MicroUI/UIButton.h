@@ -34,8 +34,8 @@ public:
     
     virtual void Display();
     
-    virtual void HandleMouseDown(const STPoint2& position);
-    virtual void HandleMouseUp(const STPoint2& position);
+    virtual void HandleMouseDown(const STPoint2& position, int modifiers = 0);
+    virtual void HandleMouseUp(const STPoint2& position, int modifiers = 0);
     virtual void HandleMouseEnter();
     virtual void HandleMouseLeave();
     

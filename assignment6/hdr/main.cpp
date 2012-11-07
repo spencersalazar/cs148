@@ -60,19 +60,94 @@ static float hdr_view_max = 1.f;   // Value to map to max color
  *
  * HINT: Look at the function definitions and the comments in response.h!
  */
-STHDRImage* recover_hdr(vector<Photo>& photos, CameraResponse& response) {
-
-  /* CS148 TODO */
-
-  return NULL;
+STHDRImage* recover_hdr(vector<Photo>& photos, CameraResponse& response)
+{
+    
+    /* CS148 TODO */
+    int width = 0, height = 0;
+    STColor3f * numerator = NULL;
+    STColor3f * denominator = NULL;
+    int i = 0;
+    
+    for(vector<Photo>::iterator j = photos.begin(); j != photos.end(); j++)
+    {
+        fprintf(stdout, "processing image %i (%s)\n", i, j->filename.c_str());
+        
+        STImage image(j->filename);
+        
+        if(denominator == NULL)
+        {
+            width = image.GetWidth();
+            height = image.GetHeight();
+            denominator = new STColor3f[width*height];
+            memset(denominator, 0, sizeof(STColor3f)*width*height);
+            numerator = new STColor3f[width*height];
+            memset(numerator, 0, sizeof(STColor3f)*width*height);
+        }
+        
+        STColor3f ln_dt = STColor3f(logf(j->shutter));
+        
+        for(int y = 0; y < height; y++)
+        {
+            for(int x = 0; x < width; x++)
+            {
+                STColor4ub c = image.GetPixel(x, y);
+                numerator[x+y*width] += response.Weight(c) * (response.GetExposure(c) - ln_dt);
+                denominator[x+y*width] += response.Weight(c);
+            }
+        }
+        
+        i++;
+    }
+    
+    STHDRImage * hdrImage = new STHDRImage(width, height);
+    
+    for(int y = 0; y < height; y++)
+    {
+        for(int x = 0; x < width; x++)
+        {
+            float r = expf(numerator[x+y*width].r/denominator[x+y*width].r);
+            float g = expf(numerator[x+y*width].g/denominator[x+y*width].g);
+            float b = expf(numerator[x+y*width].b/denominator[x+y*width].b);
+            hdrImage->SetPixel(x, y, STColor3f(r, g, b));
+        }
+    }
+    
+    if(numerator)
+    {
+        delete[] numerator;
+        numerator = NULL;
+    }
+    if(denominator)
+    {
+        delete[] denominator;
+        denominator = NULL;
+    }
+    
+    return hdrImage;
 }
 
 /* Scale an HDR image for viewing, this is just a linear map
  * of hdr such that 0 maps to 0 and max_val maps to 255.
  */
-void scale_hdr(STHDRImage* hdr, float max_val, STImage* result) {
-
-  /* CS148 TODO */
+void scale_hdr(STHDRImage* hdr, float max_val, STImage* result)
+{
+    /* CS148 TODO */
+    
+    int width = hdr->GetWidth();
+    int height = hdr->GetHeight();
+    
+    for(int y = 0; y < height; y++)
+    {
+        for(int x = 0; x < width; x++)
+        {
+            STColor3f c = hdr->GetPixel(x, y);
+            float r = min(c.r/max_val * 255, 255.0f);
+            float g = min(c.g/max_val * 255, 255.0f);
+            float b = min(c.b/max_val * 255, 255.0f);
+            result->SetPixel(x, y, STColor4ub(r, g, b, 1));
+        }
+    }
 }
 
 /* Take a virtual photo - Use the camera response curve to take a virtual photo using

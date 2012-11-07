@@ -29,3 +29,7 @@ assignment_6_hdr_images
 assignment6/hdr/hdr
 
 assignment6/libst/lib/libst.a
+
+*.pfm
+
+*.cr

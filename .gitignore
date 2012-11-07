@@ -14,6 +14,8 @@ xcuserdata
 profile
 *.moved-aside
 
+*.o
+
 .DS_Store
 
 assignment5/FontEditor/FontEditor
@@ -23,3 +25,7 @@ assignment5/FontEditor/glyph.txt
 assignment6_hdr_images.zip
 
 assignment_6_hdr_images
+
+assignment6/hdr/hdr
+
+assignment6/libst/lib/libst.a

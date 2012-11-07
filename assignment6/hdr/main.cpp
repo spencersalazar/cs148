@@ -158,6 +158,18 @@ void scale_hdr(STHDRImage* hdr, float max_val, STImage* result)
 void virtual_photo(STHDRImage* hdr, CameraResponse& response, float shutter, STImage* result) {
 
   /* CS148 TODO */
+    
+    int width = hdr->GetWidth();
+    int height = hdr->GetHeight();
+    
+    for(int y = 0; y < height; y++)
+    {
+        for(int x = 0; x < width; x++)
+        {
+            STColor3f c = hdr->GetPixel(x, y);
+            result->SetPixel(x, y, response.GetResponse(c, shutter));
+        }
+    }
 }
 
 /* Tonemap operator, tonemaps the hdr image and stores the
@@ -170,9 +182,51 @@ void virtual_photo(STHDRImage* hdr, CameraResponse& response, float shutter, STI
  * 3) Store those tonemapped values to the result image,
  *    scaling appropriately.
  */
-void tonemap(STHDRImage* hdr, float key, STImage* result) {
-
-  /* CS148 TODO */
+void tonemap(STHDRImage* hdr, float key, STImage* result)\
+{
+    /* CS148 TODO */
+    
+    int width = hdr->GetWidth();
+    int height = hdr->GetHeight();
+    
+    // calculate average luminance
+    float Y_sum = 0;
+    for(int y = 0; y < height; y++)
+    {
+        for(int x = 0; x < width; x++)
+        {
+            STColor3f c = hdr->GetPixel(x, y);
+            float Y = 0.299f*c.r + 0.587*c.g + 0.114f*c.b;
+            Y_sum += log10f(0.0001 + Y);
+        }
+    }
+    
+    float Y_avg = expf(Y_sum/(width*height));
+    
+    for(int y = 0; y < height; y++)
+    {
+        for(int x = 0; x < width; x++)
+        {
+            STColor3f c = hdr->GetPixel(x, y);
+            float r = c.r;
+            float g = c.g;
+            float b = c.b;
+            
+            r *= (key/Y_avg);
+            r = r/(1+r);
+            r = min(255.0f, r*255);
+            
+            g *= (key/Y_avg);
+            g = g/(1+g);
+            g = min(255.0f, g*255);
+            
+            b *= (key/Y_avg);
+            b = b/(1+b);
+            b = min(255.0f, b*255);
+            
+            result->SetPixel(x, y, STColor4ub(r, g, b, 1));
+        }
+    }
 }
 
 //

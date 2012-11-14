@@ -39,30 +39,6 @@ static STImage * g_reconstructed = NULL;
 static STImage * g_difference = NULL;
 
 
-class Matrix
-{
-public:
-    Matrix(int _N) :
-    N(_N)
-    {
-        buf = new STVector3[N*N];
-    }
-    
-    inline STVector3 &at(int x, int y)
-    {
-        return buf[y*N+x];
-    }
-    
-    STVector3 * buf;
-    const int N;
-};
-
-inline STVector3 &get(STVector3 * v, int x, int y, int width)
-{
-    return v[y*width+x];
-}
-
-
 void haar1d_forward(const STVector3 * in, STVector3 * out, int N, int stride)
 {
     for(int i = 0; i < N/2; i++)
@@ -70,53 +46,148 @@ void haar1d_forward(const STVector3 * in, STVector3 * out, int N, int stride)
         // smooth
         out[i*stride] = (in[i*2*stride] + in[i*2*stride+stride])/2.0;
         // detail
-        out[N/2*stride+i*stride] = (in[i*2*stride] - in[i*2*stride+stride])/2.0 + 0.5;
-//        out[i*2] = in[i*2];
-//        out[i*2+1] = in[i*2+1];
+        out[N/2*stride+i*stride] = (in[i*2*stride] - in[i*2*stride+stride])/2.0 + STVector3(0.5, 0.5, 0.5);
     }
 }
 
 
 void haar_forward(const STImage * in, STImage * out)
 {
-    int size = in->GetWidth()*in->GetHeight();
+    int width = in->GetWidth();
+    int height = in->GetHeight();
+    int size = width*height;
     
     STVector3 * buf1 = new STVector3[size];
     STVector3 * buf2 = new STVector3[size];
     
-    for(int y = 0; y < in->GetHeight(); y++)
+    for(int y = 0; y < height; y++)
     {
-        for(int x = 0; x < in->GetWidth(); x++)
+        for(int x = 0; x < width; x++)
         {
             STColor4ub c = in->GetPixel(x, y);
-            buf1[y*in->GetWidth()+x] = STVector3(c.r/255.0f, c.g/255.0f, c.b/255.0f);
+            buf1[y*width+x] = STVector3(c.r/255.0f, c.g/255.0f, c.b/255.0f);
         }
     }
     
-    for(int N = in->GetWidth(); N > 1; N /= 2)
+    for(int N = width; N > 1; N /= 2)
     {
         // columns
         for(int i = 0; i < N; i++)
-            haar1d_forward(buf1+i, buf2+i, N, in->GetWidth());
-        memcpy(buf1, buf2, N*N*sizeof(STVector3));
-
+            haar1d_forward(buf1+i, buf2+i, N, width);
+        for(int i = 0; i < N; i++)
+            memcpy(buf1+i*width, buf2+i*width, N*sizeof(STVector3));
+        
         // rows
         for(int i = 0; i < N/2; i++)
-            haar1d_forward(buf1+i*N, buf2+i*N, N, 1);
-        memcpy(buf1, buf2, N/2*N*sizeof(STVector3));
+            haar1d_forward(buf1+i*width, buf2+i*width, N, 1);
+        for(int i = 0; i < N/2; i++)
+            memcpy(buf1+i*width, buf2+i*width, N*sizeof(STVector3));
     }
     
-    for(int y = 0; y < in->GetHeight(); y++)
+    for(int y = 0; y < height; y++)
     {
-        for(int x = 0; x < in->GetWidth(); x++)
+        for(int x = 0; x < width; x++)
         {
-            STVector3 v = buf1[y*in->GetWidth()+x];
+            STVector3 v = buf1[y*width+x];
+            if(v.x < 0) { v.x = 0; printf("warning: clamping R value to 0\n"); }
+            if(v.x > 1) { v.x = 1; printf("warning: clamping R value to 1\n"); }
+            if(v.y < 0) { v.y = 0; printf("warning: clamping G value to 0\n"); }
+            if(v.y > 1) { v.y = 1; printf("warning: clamping G value to 1\n"); }
+            if(v.z < 0) { v.z = 0; printf("warning: clamping B value to 0\n"); }
+            if(v.z > 1) { v.z = 1; printf("warning: clamping B value to 1\n"); }
             out->SetPixel(x, y, STColor4ub(v.x*255, v.y*255, v.z*255, 255));
         }
     }
     
     delete[] buf1;
     delete[] buf2;
+}
+
+
+void haar1d_backward(const STVector3 * in, STVector3 * out, int N, int stride)
+{
+    for(int i = 0; i < N/2; i++)
+    {
+        // smooth
+        out[i*2*stride] = in[i*stride] + (in[N/2*stride+i*stride] - STVector3(0.5, 0.5, 0.5));
+        // detail
+        out[i*2*stride+stride] = in[i*stride] - (in[N/2*stride+i*stride] - STVector3(0.5, 0.5, 0.5));
+    }
+}
+
+
+void haar_backward(const STImage * in, STImage * out)
+{
+    int width = in->GetWidth();
+    int height = in->GetHeight();
+    int size = width*height;
+    
+    STVector3 * buf1 = new STVector3[size];
+    STVector3 * buf2 = new STVector3[size];
+    
+    for(int y = 0; y < height; y++)
+    {
+        for(int x = 0; x < width; x++)
+        {
+            STColor4ub c = in->GetPixel(x, y);
+            buf1[y*width+x] = STVector3(c.r/255.0f, c.g/255.0f, c.b/255.0f);
+        }
+    }
+    
+    for(int N = 2; N <= width; N *= 2)
+    {
+        // rows
+        for(int i = 0; i < N/2; i++)
+            haar1d_backward(buf1+i*width, buf2+i*width, N, 1);
+        for(int i = 0; i < N/2; i++)
+            memcpy(buf1+i*width, buf2+i*width, N*sizeof(STVector3));
+        
+        // columns
+        for(int i = 0; i < N; i++)
+            haar1d_backward(buf1+i, buf2+i, N, width);
+        for(int i = 0; i < N; i++)
+            memcpy(buf1+i*width, buf2+i*width, N*sizeof(STVector3));
+    }
+    
+    for(int y = 0; y < height; y++)
+    {
+        for(int x = 0; x < width; x++)
+        {
+            STVector3 v = buf1[y*width+x];
+            if(v.x < 0) { v.x = 0; printf("warning: clamping R value to 0\n"); }
+            if(v.x > 1) { v.x = 1; printf("warning: clamping R value to 1\n"); }
+            if(v.y < 0) { v.y = 0; printf("warning: clamping G value to 0\n"); }
+            if(v.y > 1) { v.y = 1; printf("warning: clamping G value to 1\n"); }
+            if(v.z < 0) { v.z = 0; printf("warning: clamping B value to 0\n"); }
+            if(v.z > 1) { v.z = 1; printf("warning: clamping B value to 1\n"); }
+            out->SetPixel(x, y, STColor4ub(v.x*255, v.y*255, v.z*255, 255));
+        }
+    }
+    
+    delete[] buf1;
+    delete[] buf2;
+}
+
+
+void diff(const STImage * a, const STImage * b, STImage * out)
+{
+    int width = a->GetWidth();
+    int height = a->GetHeight();
+
+    for(int y = 0; y < height; y++)
+    {
+        for(int x = 0; x < width; x++)
+        {
+            STColor4ub c_a = a->GetPixel(x, y);
+            STColor4ub c_b = b->GetPixel(x, y);
+            STColor4ub mid = STColor4ub(127, 127, 127, 255);
+            STColor4ub dif = STColor4ub(c_b.r-c_a.r+mid.r,
+                                        c_b.g+c_a.g+mid.g,
+                                        c_b.b+c_a.b+mid.b,
+                                        255);
+            out->SetPixel(x, y, dif);
+        }
+    }
 }
 
 
@@ -229,10 +300,13 @@ int main(int argc, char** argv)
     assert(gWindowSizeX == gWindowSizeY && log2f(gWindowSizeX)==floorf(log2f(gWindowSizeX)));
     
     g_xformquantized = new STImage(g_original->GetWidth(), g_original->GetHeight());
-    g_reconstructed = g_original;
-    g_difference = g_original;
+    g_reconstructed = new STImage(g_original->GetWidth(), g_original->GetHeight());
+    g_difference = new STImage(g_original->GetWidth(), g_original->GetHeight());
     
     haar_forward(g_original, g_xformquantized);
+    haar_backward(g_xformquantized, g_reconstructed);
+    
+    diff(g_original, g_reconstructed, g_difference);
 
     //
     // Initialize GLUT.

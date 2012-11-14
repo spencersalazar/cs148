@@ -93,18 +93,17 @@ void haar_forward(const STImage * in, STImage * out)
         }
     }
     
-    for(int N = in->GetWidth(); N > in->GetWidth()/4; N /= 2)
+    for(int N = in->GetWidth(); N > 1; N /= 2)
     {
+        // columns
         for(int i = 0; i < N; i++)
+            haar1d_forward(buf1+i, buf2+i, N, in->GetWidth());
+        memcpy(buf1, buf2, N*N*sizeof(STVector3));
+
+        // rows
+        for(int i = 0; i < N/2; i++)
             haar1d_forward(buf1+i*N, buf2+i*N, N, 1);
-        memcpy(buf1, buf2, N*N*sizeof(STVector3));
-        
-        N /= 2;
-        if(N <= in->GetWidth()/4) break;
-        
-        for(int i = 0; i < N; i++)
-            haar1d_forward(buf1+i, buf2+i, N, N);
-        memcpy(buf1, buf2, N*N*sizeof(STVector3));
+        memcpy(buf1, buf2, N/2*N*sizeof(STVector3));
     }
     
     for(int y = 0; y < in->GetHeight(); y++)

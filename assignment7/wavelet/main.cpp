@@ -39,6 +39,30 @@ static STImage * g_reconstructed = NULL;
 static STImage * g_difference = NULL;
 
 
+class Matrix
+{
+public:
+    Matrix(int _N) :
+    N(_N)
+    {
+        buf = new STVector3[N*N];
+    }
+    
+    inline STVector3 &at(int x, int y)
+    {
+        return buf[y*N+x];
+    }
+    
+    STVector3 * buf;
+    const int N;
+};
+
+inline STVector3 &get(STVector3 * v, int x, int y, int width)
+{
+    return v[y*width+x];
+}
+
+
 void haar1d_forward(const STVector3 * in, STVector3 * out, int N, int stride)
 {
     for(int i = 0; i < N/2; i++)
@@ -69,15 +93,18 @@ void haar_forward(const STImage * in, STImage * out)
         }
     }
     
-    for(int N = in->GetWidth(); N > in->GetWidth()/2; N /= 2)
+    for(int N = in->GetWidth(); N > in->GetWidth()/4; N /= 2)
     {
         for(int i = 0; i < N; i++)
             haar1d_forward(buf1+i*N, buf2+i*N, N, 1);
-        memcpy(buf1, buf2, N*N);
+        memcpy(buf1, buf2, N*N*sizeof(STVector3));
         
-//        for(int i = 0; i < N; i++)
-//            haar1d_forward(buf1+i, buf2+i, N, N);
-//        memcpy(buf1, buf2, N*N);
+        N /= 2;
+        if(N <= in->GetWidth()/4) break;
+        
+        for(int i = 0; i < N; i++)
+            haar1d_forward(buf1+i, buf2+i, N, N);
+        memcpy(buf1, buf2, N*N*sizeof(STVector3));
     }
     
     for(int y = 0; y < in->GetHeight(); y++)

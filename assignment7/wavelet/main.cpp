@@ -38,54 +38,98 @@ static STImage * g_xformquantized = NULL;
 static STImage * g_reconstructed = NULL;
 static STImage * g_difference = NULL;
 
-float g_quality = 0.15;
+float g_quality = 0.1;
+float g_power = 0.9;
+bool g_nonlinearize = false;
+bool g_softclip = false;
 
 
-STColor4ub quantize(STVector3 v, int level, float qfactor)
+inline float signum(const float &v)
 {
-    if(v.x < 0) { v.x = 0; }
-    if(v.x > 1) { v.x = 1; }
-    if(v.y < 0) { v.y = 0; }
-    if(v.y > 1) { v.y = 1; }
-    if(v.z < 0) { v.z = 0; }
-    if(v.z > 1) { v.z = 1; }
-    
-//    return STColor4ub(v.x*255, v.y*255, v.z*255, 255);
-    
-    if(level == 0) return STColor4ub(v.x*255, v.y*255, v.z*255, 255);
-    
-    STColor4ub c;
-    
-    c.r = 255*((v.x - 0.5) / (powf(level, powf(qfactor,3))) + 0.5);
-    c.g = 255*((v.y - 0.5) / (powf(level, powf(qfactor,3))) + 0.5);
-    c.b = 255*((v.z - 0.5) / (powf(level, powf(qfactor,3))) + 0.5);
-    c.a = 255;
-    
-    return c;
+    return v/fabsf(v);
 }
 
 
-STColor4ub reverse_quantize(STVector3 v, int level, float qfactor)
+STColor4ub quantize(STVector3 v, float level, float qfactor)
 {
-    if(v.x < 0) { v.x = 0; }
-    if(v.x > 1) { v.x = 1; }
-    if(v.y < 0) { v.y = 0; }
-    if(v.y > 1) { v.y = 1; }
-    if(v.z < 0) { v.z = 0; }
-    if(v.z > 1) { v.z = 1; }
-    
-//    return STColor4ub(v.x*255, v.y*255, v.z*255, 255);
-    
-    if(level == 0) return STColor4ub(v.x*255, v.y*255, v.z*255, 255);
-    
-    STColor4ub c;
+    if(level > 0)
+    {
+        v.x -= 0.5;
+        v.y -= 0.5;
+        v.z -= 0.5;
 
-    c.r = 255*((v.x - 0.5) * (powf(level, powf(qfactor,3))) + 0.5);
-    c.g = 255*((v.y - 0.5) * (powf(level, powf(qfactor,3))) + 0.5);
-    c.b = 255*((v.z - 0.5) * (powf(level, powf(qfactor,3))) + 0.5);
-    c.a = 255;
+        v.x = v.x / (powf(level, powf(qfactor,3)));
+        v.y = v.y / (powf(level, powf(qfactor,3)));
+        v.z = v.z / (powf(level, powf(qfactor,3)));
+        
+        if(g_nonlinearize)
+        {
+            float pow = g_power;
+            v.x = (v.x == 0) ? 0 : signum(v.x)*powf(fabsf(v.x), pow);
+            v.y = (v.y == 0) ? 0 : signum(v.y)*powf(fabsf(v.y), pow);
+            v.z = (v.z == 0) ? 0 : signum(v.z)*powf(fabsf(v.z), pow);
+        }
+
+        if(g_softclip)
+        {
+            v.x = v.x/(1.1-fabsf(v.x));
+            v.y = v.y/(1.1-fabsf(v.y));
+            v.z = v.z/(1.1-fabsf(v.z));
+        }
+        
+        v.x += 0.5;
+        v.y += 0.5;
+        v.z += 0.5;
+
+        if(v.x < 0) { v.x = 0; }
+        if(v.x > 1) { v.x = 1; }
+        if(v.y < 0) { v.y = 0; }
+        if(v.y > 1) { v.y = 1; }
+        if(v.z < 0) { v.z = 0; }
+        if(v.z > 1) { v.z = 1; }
+    }
     
-    return c;
+    return STColor4ub(v.x*255, v.y*255, v.z*255, 255);
+}
+
+
+STColor4ub reverse_quantize(STVector3 v, float level, float qfactor)
+{
+    if(level > 0)
+    {
+        v.x -= 0.5;
+        v.y -= 0.5;
+        v.z -= 0.5;
+        
+        v.x = v.x * (powf(level, powf(qfactor,3)));
+        v.y = v.y * (powf(level, powf(qfactor,3)));
+        v.z = v.z * (powf(level, powf(qfactor,3)));
+        
+        if(g_nonlinearize)
+        {
+            float pow = 1.0/g_power;
+            v.x = (v.x == 0) ? 0 : signum(v.x)*powf(fabsf(v.x), pow);
+            v.y = (v.y == 0) ? 0 : signum(v.y)*powf(fabsf(v.y), pow);
+            v.z = (v.z == 0) ? 0 : signum(v.z)*powf(fabsf(v.z), pow);
+        }
+        
+//        v.x = v.x/(1-fabsf(v.x));
+//        v.y = v.y/(1-fabsf(v.y));
+//        v.z = v.z/(1-fabsf(v.z));
+        
+        v.x += 0.5;
+        v.y += 0.5;
+        v.z += 0.5;
+
+        if(v.x < 0) { v.x = 0; }
+        if(v.x > 1) { v.x = 1; }
+        if(v.y < 0) { v.y = 0; }
+        if(v.y > 1) { v.y = 1; }
+        if(v.z < 0) { v.z = 0; }
+        if(v.z > 1) { v.z = 1; }
+    }
+
+    return STColor4ub(v.x*255, v.y*255, v.z*255, 255);
 }
 
 
@@ -139,6 +183,7 @@ void haar_forward(const STImage * in, STImage * out)
         for(int x = 0; x < width; x++)
         {
             int level = max(ceilf(log2f(x+1)), ceilf(log2f(y+1)));
+            //float level = max((log2f(x+1)), (log2f(y+1)));
             out->SetPixel(x, y, quantize(buf1[y*width+x], level, g_quality));
         }
     }
@@ -200,6 +245,7 @@ void haar_backward(const STImage * in, STImage * out)
         for(int x = 0; x < width; x++)
         {
             int level = max(ceilf(log2f(x+1)), ceilf(log2f(y+1)));
+            //float level = max((log2f(x+1)), (log2f(y+1)));
             out->SetPixel(x, y, reverse_quantize(buf1[y*width+x], level, g_quality));
         }
     }
@@ -236,6 +282,11 @@ void diff(const STImage * a, const STImage * b, STImage * out)
 //
 void DisplayCallback()
 {
+    haar_forward(g_original, g_xformquantized);
+    haar_backward(g_xformquantized, g_reconstructed);
+    
+    diff(g_original, g_reconstructed, g_difference);
+
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
@@ -263,6 +314,57 @@ void DisplayCallback()
 
     glutSwapBuffers();
 }
+
+
+void KeyCallback(unsigned char key, int x, int y)
+{
+    bool redisplay = false;
+
+    switch(key)
+    {
+        case 'a':
+            g_quality -= 0.01;
+            if(g_quality < 0) g_quality = 0;
+            printf("quality: %f\n", g_quality);
+            redisplay = true;
+            break;
+        case 'd':
+            g_quality += 0.01;
+            if(g_quality > 1) g_quality = 1;
+            printf("quality: %f\n", g_quality);
+            redisplay = true;
+            break;
+            
+        case 'z':
+            g_power -= 0.01;
+            if(g_power < 0) g_power = 0;
+            printf("power: %f\n", g_power);
+            redisplay = true;
+            break;
+        case 'c':
+            g_power += 0.01;
+            if(g_power > 1) g_power = 1;
+            printf("power: %f\n", g_power);
+            redisplay = true;
+            break;
+            
+        case 'l':
+            g_nonlinearize = !g_nonlinearize;
+            printf("nonlinearize: %i\n", g_nonlinearize);
+            redisplay = true;
+            break;
+            
+        case 'k':
+            g_softclip = !g_softclip;
+            printf("softclip: %i\n", g_softclip);
+            redisplay = true;
+            break;
+    }
+    
+    if(redisplay)
+        glutPostRedisplay();
+}
+
 
 //
 // Reshape the window and record the size so
@@ -343,11 +445,6 @@ int main(int argc, char** argv)
     g_reconstructed = new STImage(g_original->GetWidth(), g_original->GetHeight());
     g_difference = new STImage(g_original->GetWidth(), g_original->GetHeight());
     
-    haar_forward(g_original, g_xformquantized);
-    haar_backward(g_xformquantized, g_reconstructed);
-    
-    diff(g_original, g_reconstructed, g_difference);
-
     //
     // Initialize GLUT.
     //
@@ -371,6 +468,7 @@ int main(int argc, char** argv)
     glutMouseFunc(MouseCallback);
     glutMotionFunc(MotionCallback);
     glutPassiveMotionFunc(PassiveMotionCallback);
+    glutKeyboardFunc(KeyCallback);
 
     glutMainLoop();
 

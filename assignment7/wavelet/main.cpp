@@ -38,6 +38,56 @@ static STImage * g_xformquantized = NULL;
 static STImage * g_reconstructed = NULL;
 static STImage * g_difference = NULL;
 
+float g_quality = 0.15;
+
+
+STColor4ub quantize(STVector3 v, int level, float qfactor)
+{
+    if(v.x < 0) { v.x = 0; }
+    if(v.x > 1) { v.x = 1; }
+    if(v.y < 0) { v.y = 0; }
+    if(v.y > 1) { v.y = 1; }
+    if(v.z < 0) { v.z = 0; }
+    if(v.z > 1) { v.z = 1; }
+    
+//    return STColor4ub(v.x*255, v.y*255, v.z*255, 255);
+    
+    if(level == 0) return STColor4ub(v.x*255, v.y*255, v.z*255, 255);
+    
+    STColor4ub c;
+    
+    c.r = 255*((v.x - 0.5) / (powf(level, powf(qfactor,3))) + 0.5);
+    c.g = 255*((v.y - 0.5) / (powf(level, powf(qfactor,3))) + 0.5);
+    c.b = 255*((v.z - 0.5) / (powf(level, powf(qfactor,3))) + 0.5);
+    c.a = 255;
+    
+    return c;
+}
+
+
+STColor4ub reverse_quantize(STVector3 v, int level, float qfactor)
+{
+    if(v.x < 0) { v.x = 0; }
+    if(v.x > 1) { v.x = 1; }
+    if(v.y < 0) { v.y = 0; }
+    if(v.y > 1) { v.y = 1; }
+    if(v.z < 0) { v.z = 0; }
+    if(v.z > 1) { v.z = 1; }
+    
+//    return STColor4ub(v.x*255, v.y*255, v.z*255, 255);
+    
+    if(level == 0) return STColor4ub(v.x*255, v.y*255, v.z*255, 255);
+    
+    STColor4ub c;
+
+    c.r = 255*((v.x - 0.5) * (powf(level, powf(qfactor,3))) + 0.5);
+    c.g = 255*((v.y - 0.5) * (powf(level, powf(qfactor,3))) + 0.5);
+    c.b = 255*((v.z - 0.5) * (powf(level, powf(qfactor,3))) + 0.5);
+    c.a = 255;
+    
+    return c;
+}
+
 
 void haar1d_forward(const STVector3 * in, STVector3 * out, int N, int stride)
 {
@@ -88,16 +138,12 @@ void haar_forward(const STImage * in, STImage * out)
     {
         for(int x = 0; x < width; x++)
         {
-            STVector3 v = buf1[y*width+x];
-            if(v.x < 0) { v.x = 0; printf("warning: clamping R value to 0\n"); }
-            if(v.x > 1) { v.x = 1; printf("warning: clamping R value to 1\n"); }
-            if(v.y < 0) { v.y = 0; printf("warning: clamping G value to 0\n"); }
-            if(v.y > 1) { v.y = 1; printf("warning: clamping G value to 1\n"); }
-            if(v.z < 0) { v.z = 0; printf("warning: clamping B value to 0\n"); }
-            if(v.z > 1) { v.z = 1; printf("warning: clamping B value to 1\n"); }
-            out->SetPixel(x, y, STColor4ub(v.x*255, v.y*255, v.z*255, 255));
+            int level = max(ceilf(log2f(x+1)), ceilf(log2f(y+1)));
+            out->SetPixel(x, y, quantize(buf1[y*width+x], level, g_quality));
         }
     }
+    
+//    out->SetPixel(0, 0, STColor4ub(0, 255, 127));
     
     delete[] buf1;
     delete[] buf2;
@@ -153,14 +199,8 @@ void haar_backward(const STImage * in, STImage * out)
     {
         for(int x = 0; x < width; x++)
         {
-            STVector3 v = buf1[y*width+x];
-            if(v.x < 0) { v.x = 0; printf("warning: clamping R value to 0\n"); }
-            if(v.x > 1) { v.x = 1; printf("warning: clamping R value to 1\n"); }
-            if(v.y < 0) { v.y = 0; printf("warning: clamping G value to 0\n"); }
-            if(v.y > 1) { v.y = 1; printf("warning: clamping G value to 1\n"); }
-            if(v.z < 0) { v.z = 0; printf("warning: clamping B value to 0\n"); }
-            if(v.z > 1) { v.z = 1; printf("warning: clamping B value to 1\n"); }
-            out->SetPixel(x, y, STColor4ub(v.x*255, v.y*255, v.z*255, 255));
+            int level = max(ceilf(log2f(x+1)), ceilf(log2f(y+1)));
+            out->SetPixel(x, y, reverse_quantize(buf1[y*width+x], level, g_quality));
         }
     }
     

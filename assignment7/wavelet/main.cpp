@@ -277,6 +277,34 @@ void diff(const STImage * a, const STImage * b, STImage * out)
 }
 
 
+float compute_psnr(const STImage * a, const STImage * b)
+{
+    int width = a->GetWidth();
+    int height = a->GetHeight();
+    
+    float mse = 0;
+    float I_max = 0;
+    
+    for(int y = 0; y < height; y++)
+    {
+        for(int x = 0; x < width; x++)
+        {
+            STColor4ub c_a = a->GetPixel(x, y);
+            STColor4ub c_b = b->GetPixel(x, y);
+            float I_a = .299*(c_a.r/255.0f) + .587*(c_a.g/255.0f) + .114*(c_a.b/255.0f);
+            float I_b = .299*(c_b.r/255.0f) + .587*(c_b.g/255.0f) + .114*(c_b.b/255.0f);
+            mse += (I_b - I_a)*(I_b - I_a);
+            if(I_a > I_max)
+                I_max = I_a;
+        }
+    }
+    
+    mse /= (width*height);
+    
+    return 10*log10f(I_max*I_max/mse);
+}
+
+
 //
 // Display the UI, including all widgets.
 //
@@ -286,6 +314,8 @@ void DisplayCallback()
     haar_backward(g_xformquantized, g_reconstructed);
     
     diff(g_original, g_reconstructed, g_difference);
+    
+    printf("PSNR: %f\n", compute_psnr(g_original, g_reconstructed));
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();

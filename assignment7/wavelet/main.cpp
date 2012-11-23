@@ -305,6 +305,37 @@ float compute_psnr(const STImage * a, const STImage * b)
 }
 
 
+float compute_entropy(const STImage * i)
+{
+    int width = i->GetWidth();
+    int height = i->GetHeight();
+    float bin[256];
+    memset(bin, 0, sizeof(float)*256);
+    
+    for(int y = 0; y < height; y++)
+    {
+        for(int x = 0; x < width; x++)
+        {
+            STColor4ub c = i->GetPixel(x, y);
+            bin[c.r]++;
+            bin[c.g]++;
+            bin[c.b]++;
+        }
+    }
+    
+    float entropy = 0;
+    
+    for(int i = 0; i < 256; i++)
+    {
+        bin[i] /= 3*width*height;
+        if(bin[i] > 0)
+            entropy += bin[i] * log2f(bin[i]);
+    }
+    
+    return -entropy;
+}
+
+
 //
 // Display the UI, including all widgets.
 //
@@ -316,6 +347,7 @@ void DisplayCallback()
     diff(g_original, g_reconstructed, g_difference);
     
     printf("PSNR: %f\n", compute_psnr(g_original, g_reconstructed));
+    printf("entropy: %f\n", compute_entropy(g_xformquantized));
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -474,6 +506,25 @@ int main(int argc, char** argv)
     g_xformquantized = new STImage(g_original->GetWidth(), g_original->GetHeight());
     g_reconstructed = new STImage(g_original->GetWidth(), g_original->GetHeight());
     g_difference = new STImage(g_original->GetWidth(), g_original->GetHeight());
+    
+    
+    {
+        float qualities[] = { 0, 0.1, 0.2, 0.3, 0.5, 0.75, 1 };
+        
+        for(int i = 0; i < sizeof(qualities)/sizeof(float); i++)
+        {
+            g_quality = qualities[i];
+            
+            haar_forward(g_original, g_xformquantized);
+            haar_backward(g_xformquantized, g_reconstructed);
+            
+            printf("quality: %f\n", g_quality);
+            printf("PSNR: %f\n", compute_psnr(g_original, g_reconstructed));
+            printf("entropy: %f\n", compute_entropy(g_xformquantized));
+        }
+    }
+    
+    g_quality = 0.5;
     
     //
     // Initialize GLUT.

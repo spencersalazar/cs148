@@ -56,6 +56,7 @@ float mCameraAzimuth;
 float mCameraElevation;
 bool teapot = false;
 
+float g_t = 0;
 
 void resetCamera()
 {
@@ -126,6 +127,8 @@ void AdjustCameraTranslationBy(STVector3 delta)
 //
 void DisplayCallback()
 {
+    g_t += 1.0/30.0;
+    
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     glMatrixMode(GL_MODELVIEW);
@@ -180,6 +183,7 @@ void DisplayCallback()
     else
     {
         shader->SetUniform("teapot", 0.);
+        shader->SetUniform("t", g_t);
         // Draw a coplanar quadrilateral on the y=0 plane.
         // This is the surface we will distort for the
         // assignment.
@@ -354,6 +358,13 @@ void MouseMotionCallback(int x, int y)
     
 }
 
+void TimerCallback(int i)
+{
+    glutPostRedisplay();
+    
+    glutTimerFunc(1000/30, TimerCallback, 0);
+}
+
 
 void usage()
 {
@@ -410,7 +421,8 @@ int main(int argc, char** argv)
     glutKeyboardFunc(KeyCallback);
     glutMouseFunc(MouseCallback);
     glutMotionFunc(MouseMotionCallback);
-    glutIdleFunc(DisplayCallback);
+//    glutIdleFunc(DisplayCallback);
+    glutTimerFunc(1000/30, TimerCallback, 0);
 
     glutMainLoop();
 

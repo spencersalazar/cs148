@@ -14,6 +14,33 @@ varying vec3 normal;
 
 varying float displacement;
 
+uniform float t;
+
+float PI = 3.14159265358979323846264;
+float TWOPI = 2.0*PI;
+
+float rand(vec2 co)
+{
+    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
+float disp(in float x, in float y)
+{
+    float A = 0.1;
+    float f = 4.0;
+    float A_mod = 0.5;
+    float f_mod = f*0.025;
+    float f_t = 0.125;
+    float scale_t = 0.1;
+
+    float x_mod = A_mod*(cos(f_mod*TWOPI*(x+t*scale_t)));
+    float y_mod = A_mod*(cos(f_mod*TWOPI*(y+t*scale_t)));
+    
+    return A*
+    cos((f+x_mod)*TWOPI*(x+t*scale_t+0.001*rand(vec2(t,t+0.1))))*
+    cos((f+y_mod)*TWOPI*(y-t*scale_t+0.001*rand(vec2(t,t-0.1))))*
+    sin(f_t*TWOPI*t)*sin(f_t*TWOPI*t);
+}
 
 void main()
 {
@@ -27,6 +54,14 @@ void main()
     texPos = gl_MultiTexCoord0.xy;
     
 	/* CS 148 TODO: Modify 'modelPos' and 'normal' using your displacment function */
+    
+    float d = disp(texPos.x, texPos.y);
+    modelPos = modelPos + normal*d;
+    
+    float delta = 0.0001;
+    vec3 t1 = normalize(vec3(1, (disp(texPos.x+delta, texPos.y)-d)/delta, 0));
+    vec3 t2 = normalize(vec3(0, -(disp(texPos.x, texPos.y+delta)-d)/delta, -1));
+    normal = cross(t1, t2);
     
     // Render the shape using modified position.
     gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix *  vec4(modelPos,1);

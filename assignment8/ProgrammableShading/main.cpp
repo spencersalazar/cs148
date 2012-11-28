@@ -34,7 +34,7 @@ static float ambientLight[]  = {0.10, 0.10, 0.10, 1.0};
 static float diffuseLight[]  = {1.00, 1.00, 1.00, 1.0};
 
 // Material color properties
-static float materialAmbient[]  = { 0.2, 0.2, 0.6, 1.0 };
+static float materialAmbient[]  = { 0.8, 0.8, 1.0, 1.0 };
 static float materialDiffuse[]  = { 0.2, 0.2, 0.6, 1.0 };
 static float materialSpecular[] = { 0.8, 0.8, 0.8, 1.0 };
 static float shininess          = 8.0;  // # between 1 and 128.

@@ -32,7 +32,7 @@ void main()
     vec3 diffuseColor  = gl_LightSource[0].diffuse.xyz;
     vec3 specularColor = gl_LightSource[0].specular.xyz;
     
-    vec3 materialColor = texture2D(envMapTex, uv).xyz;
+    vec3 materialColor = gl_FrontMaterial.ambient.xyz * texture2D(envMapTex, uv).xyz;
     vec3 materialSpec  = gl_FrontMaterial.specular.xyz;
     float shininess    = gl_FrontMaterial.shininess;
     

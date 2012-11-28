@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		090E0F751665C5CF006AA727 /* lpphong.frag in Sources */ = {isa = PBXBuildFile; fileRef = 090E0F741665C5CF006AA727 /* lpphong.frag */; };
 		8DD76F650486A84900D96B5E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 08FB7796FE84155DC02AAC07 /* main.cpp */; settings = {ATTRIBUTES = (); }; };
 		E019EAE00F436BD800EE6385 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E019EADE0F436BD800EE6385 /* GLUT.framework */; };
 		E019EAE10F436BD800EE6385 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E019EADF0F436BD800EE6385 /* OpenGL.framework */; };
@@ -48,6 +49,7 @@
 		090E0F681662DBCE006AA727 /* displacement.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = displacement.vert; path = kernels/displacement.vert; sourceTree = "<group>"; };
 		090E0F691662DBCE006AA727 /* lightprobe.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = lightprobe.frag; path = kernels/lightprobe.frag; sourceTree = "<group>"; };
 		090E0F6A1662DBCE006AA727 /* phong.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = phong.frag; path = kernels/phong.frag; sourceTree = "<group>"; };
+		090E0F741665C5CF006AA727 /* lpphong.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = lpphong.frag; path = kernels/lpphong.frag; sourceTree = "<group>"; };
 		8DD76F6C0486A84900D96B5E /* ProgrammableShading */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ProgrammableShading; sourceTree = BUILT_PRODUCTS_DIR; };
 		E019EAD40F436B9700EE6385 /* libst.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libst.xcodeproj; path = ../libst/xcode/libst.xcodeproj; sourceTree = SOURCE_ROOT; };
 		E019EADE0F436BD800EE6385 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = /System/Library/Frameworks/GLUT.framework; sourceTree = "<absolute>"; };
@@ -99,6 +101,7 @@
 				090E0F681662DBCE006AA727 /* displacement.vert */,
 				090E0F691662DBCE006AA727 /* lightprobe.frag */,
 				090E0F6A1662DBCE006AA727 /* phong.frag */,
+				090E0F741665C5CF006AA727 /* lpphong.frag */,
 			);
 			name = Shaders;
 			sourceTree = "<group>";
@@ -197,6 +200,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8DD76F650486A84900D96B5E /* main.cpp in Sources */,
+				090E0F751665C5CF006AA727 /* lpphong.frag in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

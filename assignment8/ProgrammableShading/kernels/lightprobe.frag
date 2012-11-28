@@ -29,6 +29,7 @@ void main()
 	vec3 C = vec3(0.0, 0.0, 0.0); // camera position
 
 	/* CS 148 TODO: Implement environment mapping here */
+    vec2 uv = vec2((N.x*0.5+1.0)/2.0, (N.y*0.5+1.0)/2.0);
     
-    gl_FragColor = texture2D(envMapTex, texPos);
+    gl_FragColor = texture2D(envMapTex, uv);
 }

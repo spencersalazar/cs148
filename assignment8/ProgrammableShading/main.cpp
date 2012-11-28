@@ -178,7 +178,8 @@ void DisplayCallback()
     {
         // Draw a Utah Teapot
         shader->SetUniform("teapot", 1.);
-        glutSolidTeapot(1); 
+        shader->SetUniform("t", g_t);
+        glutSolidTeapot(1);
     }
     else
     {

@@ -24,22 +24,36 @@ float rand(vec2 co)
     return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
 }
 
+//float disp(in float x, in float y)
+//{
+//    float A = 0.2;
+//    float f = 4.0;
+//    float A_mod = 0.5;
+//    float f_mod = f*0.025;
+//    float f_t = 0.125;
+//    float scale_t = 0.1;
+//    
+//    float x_mod = A_mod*(cos(f_mod*TWOPI*(x+t*scale_t)));
+//    float y_mod = A_mod*(cos(f_mod*TWOPI*(y+t*scale_t)));
+//    
+//    return A*
+//    cos((f+x_mod)*TWOPI*(x+t*scale_t+0.001*rand(vec2(t,t+0.1))))*
+//    cos((f+y_mod)*TWOPI*(y-t*scale_t+0.001*rand(vec2(t,t-0.1))))*
+//    sin(f_t*TWOPI*t)*sin(f_t*TWOPI*t);
+//}
+
+
 float disp(in float x, in float y)
 {
-    float A = 0.1;
-    float f = 4.0;
-    float A_mod = 0.5;
-    float f_mod = f*0.025;
-    float f_t = 0.125;
-    float scale_t = 0.1;
-
-    float x_mod = A_mod*(cos(f_mod*TWOPI*(x+t*scale_t)));
-    float y_mod = A_mod*(cos(f_mod*TWOPI*(y+t*scale_t)));
+    float x_sym = x*2.0-1.0;
+    float y_sym = y*2.0-1.0;
     
-    return A*
-    cos((f+x_mod)*TWOPI*(x+t*scale_t+0.001*rand(vec2(t,t+0.1))))*
-    cos((f+y_mod)*TWOPI*(y-t*scale_t+0.001*rand(vec2(t,t-0.1))))*
-    sin(f_t*TWOPI*t)*sin(f_t*TWOPI*t);
+    float A = -0.1;
+    float f = 8.0;
+    
+    float r = sqrt(x_sym*x_sym+y_sym*y_sym);
+    
+    return A*sin(f*TWOPI*(r-0.175*t))*exp(-r*4.0)*exp(-t*0.25);
 }
 
 void main()

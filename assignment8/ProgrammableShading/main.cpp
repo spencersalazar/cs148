@@ -277,7 +277,7 @@ void SpecialKeyCallback(int key, int x, int y)
 void KeyCallback(unsigned char key, int x, int y)
 {
     switch(key) {
-    case 's': {
+        case 's': {
             //
             // Take a screenshot, and save as screenshot.jpg
             //
@@ -286,19 +286,24 @@ void KeyCallback(unsigned char key, int x, int y)
             screenshot->Save("screenshot.jpg");
             delete screenshot;
         }
-        break;
-    case 'r':
-        resetCamera();
-        break;
-    case 't':
-        teapot = !teapot;
-        break;
-	case 'q':
-		exit(0);
-    default:
-        break;
+            break;
+        case 'r':
+            resetCamera();
+            break;
+        case 't':
+            teapot = !teapot;
+            break;
+        case 'q':
+            exit(0);
+            break;
+        case 'p':
+            g_t = 0;
+            break;
+            
+        default:
+            break;
     }
-
+    
     // glutPostRedisplay();
 }
 
